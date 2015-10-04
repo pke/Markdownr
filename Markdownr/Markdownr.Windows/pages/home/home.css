@@ -1,0 +1,6 @@
+﻿.homepage section[role=main] {
+    margin-left: 20px;
+    overflow:auto;
+    background-color:white;
+    -ms-user-select: text;
+}

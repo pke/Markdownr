@@ -1,0 +1,1 @@
+MainPackage=c:\dev\projects\Markdownr\NavSharedApp1\NavSharedApp1.Windows\bin\Release\Markdownr.Windows_0.0.1.0_AnyCPU.appx

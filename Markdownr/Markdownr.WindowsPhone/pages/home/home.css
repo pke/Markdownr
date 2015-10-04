@@ -1,0 +1,13 @@
+﻿.homepage section[role=main] {
+    margin-left: 24px;
+    margin-right: 10px;
+    overflow:auto;
+    background-color:white;
+    -ms-user-select: text;
+}
+
+.fragment header[role=banner] .titlearea {
+    -ms-grid-column: 3;
+    margin-top: 37px;
+    margin-left: -96px;
+}

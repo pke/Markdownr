@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>03aca292-0714-472b-8fbb-40ba080bdf28</SharedGUID>
+  </PropertyGroup>
+  <ItemGroup>
+    <Content Include="$(MSBuildThisFileDirectory)test\*.*" />
+    <Content Include="$(MSBuildThisFileDirectory)css\*.css" />
+    <Content Include="$(MSBuildThisFileDirectory)lib\*.*" />
+    <Content Include="$(MSBuildThisFileDirectory)js\*.js" />
+    <Content Include="$(MSBuildThisFileDirectory)pages\**\*" />
+  </ItemGroup>
+</Project>
