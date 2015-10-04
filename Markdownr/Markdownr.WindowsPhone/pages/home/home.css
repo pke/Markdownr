@@ -1,9 +1,11 @@
 ﻿.homepage section[role=main] {
-    margin-left: 24px;
-    margin-right: 10px;
+    padding-left: 24px;
+    padding-right: 10px;
     overflow:auto;
     background-color:white;
     -ms-user-select: text;
+    -ms-content-zooming:zoom;
+    -ms-content-zoom-limit: 20% 1000%;
 }
 
 .fragment header[role=banner] .titlearea {
