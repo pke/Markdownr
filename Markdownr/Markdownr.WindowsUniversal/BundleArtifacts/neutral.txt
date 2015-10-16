@@ -1,0 +1,4 @@
+MainPackage=C:\dev\projects\Markdownr\Markdownr\Markdownr.WindowsUniversal\bin\Release\Markdownr.WindowsUniversal_0.0.2.0_AnyCPU.appx
+ResourcePack=C:\dev\projects\Markdownr\Markdownr\Markdownr.WindowsUniversal\bin\Release\Markdownr.WindowsUniversal_0.0.2.0_scale-100.appx
+ResourcePack=C:\dev\projects\Markdownr\Markdownr\Markdownr.WindowsUniversal\bin\Release\Markdownr.WindowsUniversal_0.0.2.0_scale-140.appx
+ResourcePack=C:\dev\projects\Markdownr\Markdownr\Markdownr.WindowsUniversal\bin\Release\Markdownr.WindowsUniversal_0.0.2.0_scale-180.appx
