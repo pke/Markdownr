@@ -1,9 +1,4 @@
-﻿#contenthost {
-    height: 100%;
-    width: 100%;
-}
-
-.fragment {
+﻿.fragment {
     /* Define a grid with rows for a banner and a body */
     -ms-grid-columns: 1fr;
     -ms-grid-rows: 128px 1fr;

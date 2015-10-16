@@ -6,7 +6,9 @@
     <SharedGUID>03aca292-0714-472b-8fbb-40ba080bdf28</SharedGUID>
   </PropertyGroup>
   <ItemGroup>
-    <Content Include="$(MSBuildThisFileDirectory)test\*.*" />
+    <Content Include="$(SolutionDir)*.md">
+      <Link>%(RecursiveDir)%(FileName)%(Extension)</Link>
+    </Content>
     <Content Include="$(MSBuildThisFileDirectory)css\*.css" />
     <Content Include="$(MSBuildThisFileDirectory)lib\*.*" />
     <Content Include="$(MSBuildThisFileDirectory)js\*.js" />

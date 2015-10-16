@@ -1,0 +1,34 @@
+#banner {
+    position: absolute;
+    top:0;
+    left:0;
+    width:100%;
+    padding: 10px;
+    color: white;
+    display: -ms-grid;
+    -ms-grid-columns: 1fr auto;
+    opacity:0.94;
+}
+
+#banner button {
+    -ms-grid-column:2;
+    margin-right: 16px; /* padding of parent is 10px, */
+}
+
+#banner[type=null],
+#banner[type=undefined],
+#banner[type=''] {
+    display:none;
+}
+
+#banner[type=error] {
+    background-color: darkred;
+}
+#banner[type=paste] {
+    background-color:darkgreen;
+}
+
+#contenthost {
+    height: 100%;
+    width: 100%;
+}

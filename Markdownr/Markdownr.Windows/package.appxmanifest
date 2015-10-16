@@ -15,10 +15,10 @@
   </Resources>
   <Applications>
     <Application Id="App" StartPage="default.html">
-      <m2:VisualElements DisplayName="Markdownr" Description="MarkDown file viewer" ForegroundText="dark" BackgroundColor="transparent" Square150x150Logo="images\Logo.png" Square30x30Logo="images\SmallLogo.png">
+      <m2:VisualElements DisplayName="Markdownr" Description="MarkDown file viewer" ForegroundText="dark" BackgroundColor="black" Square150x150Logo="images\Logo.png" Square30x30Logo="images\SmallLogo.png">
         <m2:DefaultTile Square70x70Logo="images\Square70x70Logo.png">
         </m2:DefaultTile>
-        <m2:SplashScreen Image="images\splashscreen.png" BackgroundColor="transparent" />
+        <m2:SplashScreen Image="images\splashscreen.png" BackgroundColor="black" />
       </m2:VisualElements>
       <Extensions>
         <Extension Category="windows.fileTypeAssociation">
@@ -30,6 +30,20 @@
               <FileType>.markdown</FileType>
             </SupportedFileTypes>
           </FileTypeAssociation>
+        </Extension>
+        <Extension Category="windows.shareTarget">
+          <ShareTarget m2:Description="Show in Markdownr">
+            <SupportedFileTypes>
+              <FileType>.md</FileType>
+              <FileType>.markdown</FileType>
+              <FileType>.txt</FileType>
+            </SupportedFileTypes>
+            <DataFormat>Text</DataFormat>
+            <DataFormat>URI</DataFormat>
+            <DataFormat>text/markdown</DataFormat>
+            <DataFormat>text/plain</DataFormat>
+            <DataFormat>StorageItems</DataFormat>
+          </ShareTarget>
         </Extension>
       </Extensions>
     </Application>
