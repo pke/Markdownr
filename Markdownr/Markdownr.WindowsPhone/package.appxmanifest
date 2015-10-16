@@ -32,6 +32,18 @@
             </SupportedFileTypes>
           </FileTypeAssociation>
         </Extension>
+        <Extension Category="windows.shareTarget">
+          <ShareTarget m2:Description="Display in Markdownr">
+            <SupportedFileTypes>
+              <FileType>.md</FileType>
+              <FileType>.markdown</FileType>
+              <FileType>.txt</FileType>
+            </SupportedFileTypes>
+            <DataFormat>Text</DataFormat>
+            <DataFormat>URI</DataFormat>
+            <DataFormat>StorageItems</DataFormat>
+          </ShareTarget>
+        </Extension>
       </Extensions>
     </Application>
   </Applications>
