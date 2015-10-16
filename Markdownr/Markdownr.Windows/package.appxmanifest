@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Package xmlns="http://schemas.microsoft.com/appx/2010/manifest" xmlns:m2="http://schemas.microsoft.com/appx/2013/manifest">
-  <Identity Name="32446DudeDevelopment.Markdownr" Version="0.3.0.0" Publisher="CN=81FA8BD8-5F0A-4423-93BB-A0B7F50AED7D" />
+  <Identity Name="32446DudeDevelopment.Markdownr" Version="0.4.0.0" Publisher="CN=81FA8BD8-5F0A-4423-93BB-A0B7F50AED7D" />
   <Properties>
     <DisplayName>Markdownr</DisplayName>
     <PublisherDisplayName>pkeit</PublisherDisplayName>
