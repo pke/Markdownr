@@ -1,0 +1,9 @@
+﻿.homepage section[role=main] {
+    padding-left: 20px;
+    padding-right: 20px;
+    overflow:auto;
+    background-color:white;
+    -ms-user-select: text;
+    -ms-content-zooming:zoom;
+    -ms-content-zoom-limit: 20% 1000%;
+}
