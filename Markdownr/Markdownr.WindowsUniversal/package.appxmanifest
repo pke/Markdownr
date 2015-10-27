@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Package xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10" xmlns:mp="http://schemas.microsoft.com/appx/2014/phone/manifest" xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10" IgnorableNamespaces="uap mp">
-  <Identity Name="32446DudeDevelopment.Markdownr" Version="0.3.0.0" Publisher="CN=81FA8BD8-5F0A-4423-93BB-A0B7F50AED7D" />
+  <Identity Name="32446DudeDevelopment.Markdownr" Version="0.4.1.0" Publisher="CN=81FA8BD8-5F0A-4423-93BB-A0B7F50AED7D" />
   <mp:PhoneIdentity PhoneProductId="fc4eab48-868b-4a23-b319-f5d14f13430b" PhonePublisherId="00000000-0000-0000-0000-000000000000" />
   <Properties>
     <DisplayName>Markdownr</DisplayName>
@@ -18,7 +18,7 @@
       <uap:VisualElements DisplayName="Markdownr" Description="Markdown file viewer" BackgroundColor="transparent" Square44x44Logo="images\Square44x44Logo.png" Square150x150Logo="images\Logo.png">
         <uap:DefaultTile Square71x71Logo="images\Square71x71Logo.png">
         </uap:DefaultTile>
-        <uap:SplashScreen Image="images\splashscreen.png" BackgroundColor="transparent" />
+        <uap:SplashScreen Image="images\splashscreen.png" BackgroundColor="#9a00f5" />
       </uap:VisualElements>
       <Extensions>
         <uap:Extension Category="windows.fileTypeAssociation">

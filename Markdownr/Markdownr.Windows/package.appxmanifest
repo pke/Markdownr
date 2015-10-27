@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Package xmlns="http://schemas.microsoft.com/appx/2010/manifest" xmlns:m2="http://schemas.microsoft.com/appx/2013/manifest">
-  <Identity Name="32446DudeDevelopment.Markdownr" Version="0.2.0.0" Publisher="CN=81FA8BD8-5F0A-4423-93BB-A0B7F50AED7D" />
+  <Identity Name="32446DudeDevelopment.Markdownr" Version="0.4.2.0" Publisher="CN=81FA8BD8-5F0A-4423-93BB-A0B7F50AED7D" />
   <Properties>
     <DisplayName>Markdownr</DisplayName>
     <PublisherDisplayName>pkeit</PublisherDisplayName>
@@ -15,22 +15,12 @@
   </Resources>
   <Applications>
     <Application Id="App" StartPage="default.html">
-      <m2:VisualElements DisplayName="Markdownr" Description="MarkDown file viewer" ForegroundText="dark" BackgroundColor="black" Square150x150Logo="images\Logo.png" Square30x30Logo="images\SmallLogo.png">
+      <m2:VisualElements DisplayName="Markdownr" Description="MarkDown file viewer" ForegroundText="dark" BackgroundColor="#7500b6" Square150x150Logo="images\Logo.png" Square30x30Logo="images\SmallLogo.png">
         <m2:DefaultTile Square70x70Logo="images\Square70x70Logo.png">
         </m2:DefaultTile>
-        <m2:SplashScreen Image="images\splashscreen.png" BackgroundColor="black" />
+        <m2:SplashScreen Image="images\splashscreen.png" BackgroundColor="#410065" />
       </m2:VisualElements>
       <Extensions>
-        <Extension Category="windows.fileTypeAssociation">
-          <FileTypeAssociation Name="markdown">
-            <DisplayName>Markdown File</DisplayName>
-            <EditFlags OpenIsSafe="true" />
-            <SupportedFileTypes>
-              <FileType>.md</FileType>
-              <FileType>.markdown</FileType>
-            </SupportedFileTypes>
-          </FileTypeAssociation>
-        </Extension>
         <Extension Category="windows.shareTarget">
           <ShareTarget m2:Description="Show in Markdownr">
             <SupportedFileTypes>
@@ -44,6 +34,16 @@
             <DataFormat>text/plain</DataFormat>
             <DataFormat>StorageItems</DataFormat>
           </ShareTarget>
+        </Extension>
+        <Extension Category="windows.fileTypeAssociation">
+          <FileTypeAssociation Name="markdown">
+            <DisplayName>Markdown File</DisplayName>
+            <EditFlags OpenIsSafe="true" />
+            <SupportedFileTypes>
+              <FileType>.md</FileType>
+              <FileType>.markdown</FileType>
+            </SupportedFileTypes>
+          </FileTypeAssociation>
         </Extension>
       </Extensions>
     </Application>
