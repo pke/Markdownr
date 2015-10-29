@@ -1,6 +1,5 @@
 ﻿.homepage section[role=main] {
-    padding-left: 24px;
-    padding-right: 10px;
+    padding: 24px 10px 0;
     overflow:auto;
     background-color:white;
     -ms-user-select: text;
