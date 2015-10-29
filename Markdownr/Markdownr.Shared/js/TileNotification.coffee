@@ -25,10 +25,11 @@ createFromTemplate = (id, templateName) ->
       bindings = tileXml.selectSingleNode("tile/visual/binding").childNodes
       if typeof arguments[2] is "string"
         for binding,index in bindings when index < arguments.length-2
+          value = arguments[2+index].replace(/\r?\n|\r/g, "")
           if binding.nodeName is "text"
-            binding.innerText = arguments[2+index]
+            binding.innerText = value
           else if binding.nodeName is "image"
-            binding.setAttribute("src", arguments[2+index])
+            binding.setAttribute("src", value)
             binding.setAttribute("alt", "Image")
 
     branding: (type) ->
