@@ -16,10 +16,10 @@
   </Resources>
   <Applications>
     <Application Id="App" StartPage="default.html">
-      <m3:VisualElements DisplayName="Markdownr" Square150x150Logo="images\Square150x150Logo.png" Square44x44Logo="images\Square44x44Logo.png" Description="MarkDown file viewer" ForegroundText="light" BackgroundColor="transparent">
-        <m3:DefaultTile Square71x71Logo="images\Square71x71Logo.png">
+      <m3:VisualElements DisplayName="Markdownr" Square150x150Logo="images\Square150x150Logo.png" Square44x44Logo="images\Square44x44Logo.png" Description="MarkDown file viewer" ForegroundText="light" BackgroundColor="#410065">
+        <m3:DefaultTile Square71x71Logo="images\Square71x71Logo.png" Wide310x150Logo="images\Wide310x150Logo.png">
         </m3:DefaultTile>
-        <m3:SplashScreen Image="images\SplashScreen.png" BackgroundColor="transparent" />
+        <m3:SplashScreen Image="images\SplashScreen.png" BackgroundColor="#410065" />
       </m3:VisualElements>
       <Extensions>
         <Extension Category="windows.shareTarget">
