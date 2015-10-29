@@ -50,8 +50,9 @@
         },
 
         init: function (element, options) {
+            var self = this;
             if (!options) {
-                var options = {};
+                options = {};
             }
             this.options = options;
             this.element = element;
@@ -77,8 +78,10 @@
                 });
             } else {
                 content = Windows.Storage.StorageFile.getFileFromApplicationUriAsync(new Windows.Foundation.Uri("ms-appx:///README.md"))
-                .then(Windows.Storage.FileIO.readTextAsync)
-                .then(function (text) {
+                .then(function (file) {
+                    options.file = file;
+                    return Windows.Storage.FileIO.readTextAsync(file);
+                }).then(function (text) {
                     return {
                         text: text,
                         callback: function (element) {
@@ -91,16 +94,16 @@
                     }
                 });
             }
-            var commands = ["openFile", "find"];
-            if (this.tileId) {
-                if (Windows.UI.StartScreen.SecondaryTile.exists(this.tileId)) {
-                    commands.push("unpin");
-                } else {
-                    commands.push("pin");
-                }
-            }
-            App.model.commands = commands;
             this.renderContentAsync = content.then(function (content) {
+                var commands = ["openFile", "find"];
+                if (self.tileId) {
+                    if (Windows.UI.StartScreen.SecondaryTile.exists(self.tileId)) {
+                        commands.push("unpin");
+                    } else {
+                        commands.push("pin");
+                    }
+                }
+                App.model.commands = commands;
                 return renderAsync(content.text).then(function (html) {
                     return {
                         html: html,
@@ -112,6 +115,9 @@
 
         unpinAsync: function(event) {
             if (!Windows.UI.StartScreen.SecondaryTile.exists(this.tileId)) {
+                // In case the app was running and the tile was deleted we at least now update the commands to reflect that it can no longer be unpinned
+                // FIXME: this should be replaced by an app activation listener, that checks if the current file/uri is still pinned
+                App.model.commands = ["openFile", "find", "pin"];
                 return WinJS.Promise.as();
             }
             var tile = new Windows.UI.StartScreen.SecondaryTile(this.tileId);
@@ -133,6 +139,45 @@
             });
         },
 
+        markdownElement: {
+            get: function() {
+                return this.markdownBody || (this.markdownBody = this.element.querySelector(".markdown-body"));
+            }
+        },
+
+        generateTableOfContentsAsync: function () {
+            var level = 0;
+            var html = "";
+            Array.prototype.forEach.call(this.markdownElement.querySelectorAll("h1,h2,h3,h4,h5,h6"), function (header, index) {
+                var anchor = "toc" + index;
+                var anchorElement = header.querySelector("a[name]");
+                if (anchorElement) {
+                    anchor = anchorElement.name;
+                } else {
+                    header.innerHTML += "<a name='" + anchor + "'/>";
+                }
+                if (header.nodeName[1] > level) {
+                    html += "<ol>";
+                    level = Number(header.nodeName[1]);
+                } else if (header.nodeName[1] < level) {
+                    while (header.nodeName[1] < level--) {
+                        html += "</li></ol>";
+                    }
+                    level = Number(header.nodeName[1]);
+                } else {
+                    html += "</li>";
+                }
+                html += "<li><a href='#" + anchor + "'>" + header.textContent + "</a>";
+            });
+            while (level--) {
+                html += "</li></ol>";
+            }
+            var toc = document.createElement("div");
+            toc.innerHTML = html;
+            toc.setAttribute("role", "tree");
+            this.markdownElement.insertBefore(toc, this.markdownElement.firstChild);
+        },
+
         pinAsync: function(event) {
             if (!this.tileId) {
                 return WinJS.Promise.as();
@@ -149,9 +194,12 @@
                 tile.arguments = uri.absoluteUri;
                 tile.displayName = uri.absoluteUri;
             }
-            tile.visualElements.square150x150Logo = new Windows.Foundation.Uri("ms-appx:///images/logo.png");
+            tile.visualElements.square150x150Logo = new Windows.Foundation.Uri("ms-appx:///images/square150x150Logo.png");
             tile.visualElements.square310x310Logo = new Windows.Foundation.Uri("ms-appx:///images/Square310x310Logo.png");
             tile.visualElements.wide310x150Logo = new Windows.Foundation.Uri("ms-appx:///images/Wide310x150Logo.png");
+            tile.visualElements.square71x71Logo = new Windows.Foundation.Uri("ms-appx:///images/Square71x71Logo.png");
+            tile.visualElements.square70x70Logo = new Windows.Foundation.Uri("ms-appx:///images/StoreLogo.png");
+            tile.visualElements.square30x30Logo = new Windows.Foundation.Uri("ms-appx:///images/SmallLogo.png");
             tile.visualElements.showNameOnSquare150x150Logo = true;
             tile.visualElements.showNameOnSquare310x310Logo = true;
             tile.visualElements.showNameOnWide310x150Logo = true;
@@ -159,6 +207,7 @@
             var title = markdownBody.querySelectorAll("h1,h2,h3,h4,h5,h6")
             var notification;
             if (title.length) {
+                //Windows.UI.Notifications.TileTemplateType.tileSquare150x150Text01
                 notification = TileNotification.createFromTemplate(tile.tileId, "TileWide310x150Text09", title[0].innerText, title[1].innerText);
             }
             var listener;
@@ -181,6 +230,7 @@
         },
 
         ready: function (element, options) {
+            var self = this;
             var markdownBody = element.querySelector(".markdown-body");
             markdownBody.addEventListener("dblclick", function (event) {
                 event.preventDefault();

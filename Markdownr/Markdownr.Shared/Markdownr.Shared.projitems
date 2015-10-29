@@ -15,6 +15,7 @@
     <Content Include="$(MSBuildThisFileDirectory)js\*.js" />
     <Content Include="$(MSBuildThisFileDirectory)js\*.coffee" />
     <Content Include="$(MSBuildThisFileDirectory)pages\**\*" />
+    <Content Include="$(MSBuildThisFileDirectory)images\kitten.png" />
   </ItemGroup>
   <ItemGroup>
     <!--PRIResource Include="$(MSBuildThisFileDirectory)strings\de\resources.resjson"/-->

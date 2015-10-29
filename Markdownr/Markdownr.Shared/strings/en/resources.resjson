@@ -1,5 +1,8 @@
 ﻿{
     "appButton.openFile": "Open File",
     "appButton.find": "Find",
-	"appButton.about": "About..."
+	"appButton.about": "about...",
+	"appButton.pin": "Pin",
+	"appButton.unpin": "Unpin",
+	"appButton.showTOC": "table of contents..."
 }

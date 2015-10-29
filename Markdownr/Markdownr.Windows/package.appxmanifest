@@ -15,7 +15,7 @@
   </Resources>
   <Applications>
     <Application Id="App" StartPage="default.html">
-      <m2:VisualElements DisplayName="Markdownr" Description="MarkDown file viewer" ForegroundText="light" BackgroundColor="#7500b6" Square150x150Logo="images\Logo.png" Square30x30Logo="images\SmallLogo.png">
+      <m2:VisualElements DisplayName="Markdownr" Description="MarkDown file viewer" ForegroundText="light" BackgroundColor="#7500b6" Square150x150Logo="images\Square150x150Logo.png" Square30x30Logo="images\SmallLogo.png">
         <m2:DefaultTile Square70x70Logo="images\Square70x70Logo.png" Square310x310Logo="images\Square310x310Logo.png" Wide310x150Logo="images\Wide310x150Logo.png">
         </m2:DefaultTile>
         <m2:SplashScreen Image="images\splashscreen.png" BackgroundColor="#410065" />
