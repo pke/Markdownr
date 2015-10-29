@@ -198,7 +198,7 @@
             })
         },
         showFind: function (text) {
-            WinJS.UI.Pages.render("/pages/findPage.html", Application.navigator.pageElement, { text: text });
+            WinJS.UI.Pages.render("/pages/findPage.html", document.body, { text: text });
         },
         findText: function (text) {
             var textRange = document.body.createTextRange();
@@ -273,6 +273,12 @@
                 WinJS.Promise.as(Application.navigator.pageControl.unpinAsync()).then(function () {
                 });
             }
+        },
+        showTOC: {
+            onclick: function() {
+                return;
+            },
+            section: "global"
         }
     };
 
@@ -300,7 +306,7 @@
             if (!buttonInfo.section) {
                 buttonInfo.section = "global";
             }
-            if (!buttonInfo.icon) {
+            if (!buttonInfo.icon && buttonInfo.section == "global") {
                 buttonInfo.icon = buttonId.toLowerCase();
             }
             return new WinJS.UI.AppBarCommand(buttonElement, buttonInfo);
