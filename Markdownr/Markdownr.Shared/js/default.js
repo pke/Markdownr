@@ -8,7 +8,8 @@
             actionAsync: null
         }),
         pasteAvailable: false,
-        recentFindTerms: new WinJS.Binding.List()
+        recentFindTerms: new WinJS.Binding.List(),
+        commands: []
     });
 
     // Clipboard module
@@ -260,13 +261,36 @@
         },
         find: {
             onclick: App.showFind
+        },
+        pin: {
+            onclick: function () {
+                WinJS.Promise.as(Application.navigator.pageControl.pinAsync()).then(function () {
+                });
+            }
+        },
+        unpin: {
+            onclick: function() {
+                WinJS.Promise.as(Application.navigator.pageControl.unpinAsync()).then(function () {
+                });
+            }
         }
     };
 
+    WinJS.Binding.bind(model, {
+        commands: function (commands, oldValue) {
+            if (oldValue === undefined) {
+                return;
+            }
+            appbar.showOnlyCommands(commands);
+        }
+    });
+
+    var appbar;
     function createAppBarButtons() {
         var commands = Object.keys(appBarButtons).map(function (buttonId) {
             var buttonElement = document.createElement("button");
             var buttonInfo = appBarButtons[buttonId];
+            buttonInfo.id = buttonId;
             var labelText = WinJS.Resources.getString("appButton." + buttonId);
             if (labelText.empty) {
                 buttonInfo.label = "!" + buttonId;
@@ -281,7 +305,7 @@
             }
             return new WinJS.UI.AppBarCommand(buttonElement, buttonInfo);
         });
-        var appbar = new WinJS.UI.AppBar(document.body.appendChild(document.createElement("div")), {
+        appbar = new WinJS.UI.AppBar(document.body.appendChild(document.createElement("div")), {
             closedDisplayMode: 'minimal',
             commands: commands
         });
@@ -335,9 +359,7 @@
         WinJS.Navigation.history = WinJS.Application.sessionState.history || {};
         WinJS.Navigation.history.current.initialPlaceholder = true;
 
-        if (args.detail.previousExecutionState !== Windows.ApplicationModel.Activation.ApplicationExecutionState.terminated) {
-            createApp();
-        }
+        createApp();
 
         var p = WinJS.UI.processAll().then(function () {
             WinJS.Binding.processAll(document.body, model);
@@ -345,7 +367,14 @@
                 return WinJS.Navigation.navigate(WinJS.Navigation.location, WinJS.Navigation.state);
             } else {
                 var promise;
-                if (args.detail.files) {
+                if (args.detail.tileId && args.detail.tileId != "App") {
+                    if (args.detail.tileId.indexOf("file_") === 0) {
+                        var futureAccessList = Windows.Storage.AccessCache.StorageApplicationPermissions.futureAccessList;
+                        promise = futureAccessList.getFileAsync(args.detail.arguments).then(showAsync);
+                    } else {
+                        promise = showAsync(new Windows.Foundation.Uri(args.detail.arguments));
+                    }
+                } else if (args.detail.files) {
                     promise = showAsync(args.detail.files[0]);
                 } else if (args.detail.shareOperation) {
                     promise = showShareOperationAsync(args.detail.shareOperation);

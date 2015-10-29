@@ -13,6 +13,7 @@
     <Content Include="$(MSBuildThisFileDirectory)css\*.css" />
     <Content Include="$(MSBuildThisFileDirectory)lib\*.*" />
     <Content Include="$(MSBuildThisFileDirectory)js\*.js" />
+    <Content Include="$(MSBuildThisFileDirectory)js\*.coffee" />
     <Content Include="$(MSBuildThisFileDirectory)pages\**\*" />
   </ItemGroup>
   <ItemGroup>
