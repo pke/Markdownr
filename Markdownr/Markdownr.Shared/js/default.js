@@ -1,13 +1,5 @@
-﻿// For an introduction to the Navigation template, see the following documentation:
-// http://go.microsoft.com/fwlink/?LinkID=392287
-(function () {
+﻿(function () {
     "use strict";
-
-    var activation = Windows.ApplicationModel.Activation;
-    var app = WinJS.Application;
-    var nav = WinJS.Navigation;
-    var sched = WinJS.Utilities.Scheduler;
-    var ui = WinJS.UI;
 
     var model = WinJS.Binding.as({
         notification: WinJS.Binding.as({
@@ -15,11 +7,11 @@
             text: "",
             actionAsync: null
         }),
-        pasteAvailable: false
+        pasteAvailable: false,
+        recentFindTerms: new WinJS.Binding.List()
     });
 
     // Clipboard module
-    var watchClipboard;
     if (Windows.ApplicationModel.DataTransfer.Clipboard) {
         var pendingClipboardChange = false;
         var hasClipboardAccess = false;
@@ -27,7 +19,7 @@
         window.addEventListener("focus", function (event) {
             hasClipboardAccess = true;
             if (pendingClipboardChange) {
-                updateFromClipboard();
+                clipboardChanged();
             }
         });
 
@@ -35,7 +27,7 @@
             hasClipboardAccess = false;
         });
 
-        function updateFromClipboard() {
+        function clipboardChanged() {
             try {
                 var dataPackageView = Windows.ApplicationModel.DataTransfer.Clipboard.getContent();
                 if (dataPackageView && dataPackageView.availableFormats.size) {
@@ -47,22 +39,31 @@
             }
         }
 
-        watchClipboard = function() {
+        function watchClipboard() {
             Windows.ApplicationModel.DataTransfer.Clipboard.addEventListener("contentchanged", function () {
                 pendingClipboardChange = true;
                 if (hasClipboardAccess) {
-                    updateFromClipboard();
+                    clipboardChanged();
                 }
             });
             if (hasClipboardAccess) {
-                updateFromClipboard();
+                clipboardChanged();
             }
         }
+
+        WinJS.Application.addEventListener("activated", function (args) {
+            args.detail.splashScreen.addEventListener("dismissed", function () {
+                watchClipboard();
+            });
+        });
     }
 
     WinJS.Application.addEventListener("clipboardchanged", function (event) {
         model.pasteAvailable = true;
         probeDataPackageAsync(event.dataPackageView).then(function (probe) {
+            if (!probe) {
+                return;
+            }
             App.notify("paste", probe.text, function () {
                 return showAsync(probe.data).then(function () {
                     event.dataPackageView.reportOperationCompleted(event.dataPackageView.requestedOperation);
@@ -90,13 +91,13 @@
             //i18n
             return WinJS.Promise.wrapError(new WinJS.ErrorFromName("Markdownr", "Unknown content to display"));
         }
-        return nav.navigate("/pages/home/home.html", options);
+        return WinJS.Navigation.navigate("/pages/homePage.html", options);
     }
 
     function probeDataPackageAsync(data) {
         if (data.requestedOperation === Windows.ApplicationModel.DataTransfer.DataPackageOperation.move) {
-            //i18n
-            return WinJS.Promise.wrapError(new WinJS.ErrorFromName("Markdownr", "Cut clipboard operations not supported"));
+            // Cut operations are not supported. Silently fail
+            return WinJS.Promise.as();
         } else if (data.contains(Windows.ApplicationModel.DataTransfer.StandardDataFormats.text)) {
             return data.getTextAsync().then(function (text) {
                 var data, text;
@@ -104,7 +105,7 @@
                     var uri = new Windows.Foundation.Uri(text);
                     return {
                         data: uri,
-                        text: "Download & display Markdown from URL in Clipboard<br>" + uri.rawUri
+                        text: "Download & display Markdown from URL in Clipboard<br>" + uri.rawUri //i18n
                     };
                 } catch (e) {
                     return {
@@ -125,12 +126,12 @@
             return data.getStorageItemsAsync().then(function (items) {
                 return {
                     data: items[0],
-                    text: "Display file from clipboard<br>"+items[0].path//i18n
+                    text: "Display file from clipboard<br>"+items[0].path //i18n
                 };
             });
         } else {
-            //i18n
-            return WinJS.Promise.wrapError(new WinJS.ErrorFromName("Markdownr", "Unknown content to display"));
+            // Fail when format is anything else
+            return WinJS.Promise.as();
         }
     }
 
@@ -162,7 +163,26 @@
         return WinJS.Promise.as(func.apply(object, Array.prototype.slice.call(arguments, 4)));
     }
 
+    var previousFindText;
     WinJS.Namespace.define("App", {
+        model: model,
+        toggleAppBar: function (visible) {
+            var appbar = window.appbar.winControl;
+            if (visible === undefined) {
+                if (appbar.opened) {
+                    visible = false;
+                } else {
+                    visible = true;
+                }
+            }
+            if (visible) {
+                // WinJS 4.x uses different methods :/
+                typeof appbar.open === "function" ? appbar.open() : appbar.show();
+            } else {
+                // WinJS 4.x uses different methods :/
+                typeof appbar.close === "function" ? appbar.close() : appbar.hide();
+            }
+        },
         openFile: function (event) {
             var picker = new Windows.Storage.Pickers.FileOpenPicker();
             picker.suggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.documentsLibrary;
@@ -175,6 +195,34 @@
             disbled: WinJS.Binding.converter(function (value) {
                 return !value;
             })
+        },
+        showFind: function (text) {
+            WinJS.UI.Pages.render("/pages/findPage.html", Application.navigator.pageElement, { text: text });
+        },
+        findText: function (text) {
+            var textRange = document.body.createTextRange();
+            // record the current position in a bookmark
+            var rangeBookmark = textRange.getBookmark();
+            if (previousFindText) {
+                while (textRange.findText(previousFindText)) {
+                    textRange.execCommand("RemoveFormat", false);
+                    textRange.collapse(false);
+                }
+                previousFindText = undefined;
+            }
+            if (!text) {
+                return;
+            }
+            if (-1 === App.model.recentFindTerms.indexOf(text)) {
+                App.model.recentFindTerms.push(text);
+            }
+            while (textRange.findText(text)) {
+                textRange.execCommand("BackColor", false, "yellow");
+                textRange.collapse(false);
+            }
+            textRange.moveToBookmark(rangeBookmark);
+            textRange.collapse();
+            previousFindText = text;
         },
         notify: function (type, text, action) {
             model.notification.text = text;
@@ -197,25 +245,104 @@
         }
     });
 
-    app.addEventListener("activated", function (args) {
-        ui.disableAnimations();
-        nav.history = app.sessionState.history || {};
-        nav.history.current.initialPlaceholder = true;
+    if (window.Mousetrap) {
+        Mousetrap.bind("esc", function () {
+            App.notify();
+        });
+        Mousetrap.bind("mod+f", function () {
+            App.showFind();
+        });
+    }
 
-        var p = ui.processAll().then(function () {
-            WinJS.Binding.processAll(document.body, model);
-            var banner = document.getElementById("banner");
-            banner.addEventListener("click", function () {
-                if (model.notification.actionAsync) {
-                    model.notification.actionAsync().done();
+    var appBarButtons = {
+        openFile: {
+            onclick: App.openFile
+        },
+        find: {
+            onclick: App.showFind
+        }
+    };
+
+    function createAppBarButtons() {
+        var commands = Object.keys(appBarButtons).map(function (buttonId) {
+            var buttonElement = document.createElement("button");
+            var buttonInfo = appBarButtons[buttonId];
+            var labelText = WinJS.Resources.getString("appButton." + buttonId);
+            if (labelText.empty) {
+                buttonInfo.label = "!" + buttonId;
+            } else {
+                buttonInfo.label = labelText.value;
+            }
+            if (!buttonInfo.section) {
+                buttonInfo.section = "global";
+            }
+            if (!buttonInfo.icon) {
+                buttonInfo.icon = buttonId.toLowerCase();
+            }
+            return new WinJS.UI.AppBarCommand(buttonElement, buttonInfo);
+        });
+        var appbar = new WinJS.UI.AppBar(document.body.appendChild(document.createElement("div")), {
+            closedDisplayMode: 'minimal',
+            commands: commands
+        });
+        appbar.element.id = "appbar";
+    }
+
+    function createBanner() {
+        var banner = document.createElement("div");
+        banner.id = "banner";
+        //i18n
+        banner.innerHTML = "<span></span><button class='close'>Close</button>";
+        WinJS.Binding.bind(model, {
+            notification: {
+                type: function (value) {
+                    banner.setAttribute("type", value);
+                },
+                text: function (value) {
+                    banner.querySelector("span").innerHTML = value;
                 }
-            });
-            banner.querySelector("button.close").addEventListener("click", function() {
-                App.notify();
-            });
-            document.getElementById("openFile").addEventListener("click", App.openFile, false);
-            if (nav.location) {
-                return nav.navigate(nav.location, nav.state);
+            }
+        });
+        document.body.appendChild(banner);
+        banner.addEventListener("click", function () {
+            if (model.notification.actionAsync) {
+                model.notification.actionAsync().done();
+            }
+        });
+        banner.querySelector("button.close").addEventListener("click", function () {
+            App.notify();
+        });
+    }
+
+    function createNavigator(home) {
+        if (!home) {
+            home = "/pages/homePage.html";
+        }
+        new Application.PageControlNavigator(document.body.appendChild(document.createElement("div")), { home: home });
+    }
+
+    function createApp(home) {
+        if (window.appbar) {
+            return;
+        }
+        createNavigator();
+        createAppBarButtons();
+        createBanner();
+    }
+
+    WinJS.Application.addEventListener("activated", function (args) {
+        WinJS.UI.disableAnimations();
+        WinJS.Navigation.history = WinJS.Application.sessionState.history || {};
+        WinJS.Navigation.history.current.initialPlaceholder = true;
+
+        if (args.detail.previousExecutionState !== Windows.ApplicationModel.Activation.ApplicationExecutionState.terminated) {
+            createApp();
+        }
+
+        var p = WinJS.UI.processAll().then(function () {
+            WinJS.Binding.processAll(document.body, model);
+            if (WinJS.Navigation.location) {
+                return WinJS.Navigation.navigate(WinJS.Navigation.location, WinJS.Navigation.state);
             } else {
                 var promise;
                 if (args.detail.files) {
@@ -227,42 +354,23 @@
                 }
                 promise.then(null, function (error) {
                     if (error.name === "Markdownr.FreshStart") {
-                        nav.navigate(Application.navigator.home);
+                        WinJS.Navigation.navigate(Application.navigator.home);
                     } else {
                         // Display Error
                     }
                 })
             }
         }).then(function () {
-            return sched.requestDrain(sched.Priority.aboveNormal + 1);
+            return WinJS.Utilities.Scheduler.requestDrain(WinJS.Utilities.Scheduler.Priority.aboveNormal + 1);
         }).then(function () {
-            ui.enableAnimations();
+            WinJS.UI.enableAnimations();
         });
         args.setPromise(p);
-
-        args.detail.splashScreen.addEventListener("dismissed", function () {
-            if (watchClipboard) {
-                watchClipboard();
-            }
-        });
-        if (args.detail.kind === activation.ActivationKind.launch || args.detail.kind === activation.ActivationKind.file || args.detail.kind == activation.ActivationKind.pickFileContinuation) {
-            if (args.detail.previousExecutionState !== activation.ApplicationExecutionState.terminated) {
-                // TODO: This application has been newly launched. Initialize
-                // your application here.
-            } else {
-                // TODO: This application was suspended and then terminated.
-                // To create a smooth user experience, restore application state here so that it looks like the app never stopped running.
-            }
-        }
     });
 
-    app.oncheckpoint = function (args) {
-        // TODO: This application is about to be suspended. Save any state
-        // that needs to persist across suspensions here. If you need to
-        // complete an asynchronous operation before your application is
-        // suspended, call args.setPromise().
-        //app.sessionState.history = nav.history;
+    WinJS.Application.oncheckpoint = function (args) {
+        //WinJS.Application.sessionState.history = WinJS.Navigation.history;
     };
 
-    app.start();
+    WinJS.Application.start();
 })();

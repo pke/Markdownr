@@ -80,7 +80,7 @@
     <Content Include="images\storelogo.scale-180.png" />
     <None Include="Package.StoreAssociation.xml" />
     <None Include="Markdownr.Windows_StoreKey.pfx" />
-    <Content Include="pages\home\home.css" />
+    <Content Include="pages\homePage.css" />
     <Content Include="default.html" />
     <None Include="Markdownr_TemporaryKey.pfx" />
   </ItemGroup>

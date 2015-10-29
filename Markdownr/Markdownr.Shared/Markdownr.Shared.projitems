@@ -3,6 +3,7 @@
   <PropertyGroup>
     <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
     <HasSharedItems>true</HasSharedItems>
+    <AutoUpdate>true</AutoUpdate>
     <SharedGUID>03aca292-0714-472b-8fbb-40ba080bdf28</SharedGUID>
   </PropertyGroup>
   <ItemGroup>
@@ -13,5 +14,9 @@
     <Content Include="$(MSBuildThisFileDirectory)lib\*.*" />
     <Content Include="$(MSBuildThisFileDirectory)js\*.js" />
     <Content Include="$(MSBuildThisFileDirectory)pages\**\*" />
+  </ItemGroup>
+  <ItemGroup>
+    <!--PRIResource Include="$(MSBuildThisFileDirectory)strings\de\resources.resjson"/-->
+    <PRIResource Include="$(MSBuildThisFileDirectory)strings\en\resources.resjson"/>
   </ItemGroup>
 </Project>

@@ -12,19 +12,12 @@
     <!-- NavSharedApp1 references -->
     <link href="/css/shared.css" rel="stylesheet" />
     <link href="/css/default.css" rel="stylesheet" />
+    <script src="/lib/mousetrap.min.js"></script>
     <script src="/js/default.js"></script>
-    
+
     <!-- Shared references -->
     <script src="/js/navigator.js"></script>
 </head>
 <body>
-    <div id="contenthost" data-win-control="Application.PageControlNavigator" data-win-options="{home: '/pages/home/home.html'}"></div>
-    <div id="banner" data-win-bind="this['type']:notification.type WinJS.Binding.setAttribute">
-        <span data-win-bind="innerHTML:notification.text"></span>
-        <button class="close" i18n>Close</button>
-    </div>
-    <div id="appbar" data-win-control="WinJS.UI.AppBar" data-win-options="{closedDisplayMode: 'minimal'}">
-        <button data-win-control="WinJS.UI.AppBarCommand" data-win-options="{id:'openFile', label:'Open File', icon:'openfile'}" type="button"></button>
-    </div>
 </body>
 </html>

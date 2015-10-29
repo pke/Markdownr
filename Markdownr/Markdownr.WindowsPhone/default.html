@@ -5,7 +5,7 @@
     <title>NavSharedApp1.WindowsPhone</title>
 
     <!-- WinJS references -->
-    <!-- At runtime, ui-themed.css resolves to ui-themed.theme-light.css or ui-themed.theme-dark.css 
+    <!-- At runtime, ui-themed.css resolves to ui-themed.theme-light.css or ui-themed.theme-dark.css
     based on the user’s theme setting. This is part of the MRT resource loading functionality. -->
     <link href="/css/ui-themed.theme-light.css" rel="stylesheet" />
     <script src="//Microsoft.Phone.WinJS.2.1/js/base.js"></script>
@@ -15,18 +15,9 @@
     <link href="/css/shared.css" rel="stylesheet" />
     <link href="/css/default.css" rel="stylesheet" />
     <script src="/js/default.js"></script>
-
     <!-- Shared references -->
-    <script src="/js/navigator.js"></script>    
+    <script src="/js/navigator.js"></script>
 </head>
 <body class="phone">
-    <div id="contenthost" data-win-control="Application.PageControlNavigator" data-win-options="{home: '/pages/home/home.html'}"></div>
-    <div id="banner" data-win-bind="this['type']:notification.type WinJS.Binding.setAttribute">
-        <span data-win-bind="innerHTML:notification.text"></span>
-        <button class="close" i18n>Close</button>
-    </div>
-    <div id="appbar" data-win-control="WinJS.UI.AppBar" data-win-options="{closedDisplayMode: 'minimal'}">
-        <button data-win-control="WinJS.UI.AppBarCommand" data-win-options="{id:'openFile', label:'Open File', icon:'openfile'}" type="button"></button>
-    </div>
 </body>
 </html>

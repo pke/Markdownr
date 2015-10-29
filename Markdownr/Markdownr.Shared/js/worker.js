@@ -9,6 +9,6 @@ onmessage = function (event) {
             } else {
                 postMessage({ html: content });
             }
-        });        
+        });
     }
 }

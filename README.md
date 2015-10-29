@@ -10,6 +10,7 @@
 * Images
 * Extensive & fast syntax highlighting
 * .md and .markdown (and .txt) files from any location
+* Find & <mark>Highlight</mark> of text
 
 
 ## How to view a file
@@ -19,3 +20,7 @@
 3. __or__ copy a text, URL, file to the clipboard and switch back to Markdownr
 4. __or__ Share a text, URL or file from any other app with Markdownr
 
+## How to find & highlight text
+
+1. Open the appbar  [`...`](#toggleAppBar) and select `Find`
+2. On the next page type the text to find and press enter

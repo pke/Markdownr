@@ -14,7 +14,7 @@
         });
     }
 
-    WinJS.UI.Pages.define("/pages/home/home.html", {
+    WinJS.UI.Pages.define("/pages/homePage.html", {
         init: function (element, options) {
             if (!options) {
                 var options = {};
@@ -46,28 +46,11 @@
                     return {
                         text: text,
                         callback: function (element) {
-                            var toggler = element.querySelector("a[href='#toggleAppBar']");
-                            if (toggler) {
-                                toggler.addEventListener("click", function (event) {
-                                    event.stopPropagation();
-                                    var appbar = window.appbar.winControl;
-                                    if (appbar.opened) {
-                                        // WinJS 4.x uses different methods :/
-                                        if (typeof appbar.close === "function") {
-                                            appbar.close();
-                                        } else {
-                                            appbar.hide();
-                                        }
-                                    } else {
-                                        if (typeof appbar.open === "function") {
-                                            appbar.open();
-                                        } else {
-                                            appbar.show();
-                                        }
-                                    }
-                                    return false;
-                                });                                
-                            }
+                            WinJS.Utilities.query("a[href='#toggleAppBar']", element).listen("click", function (event) {
+                                event.stopPropagation();
+                                App.toggleAppBar()
+                                return false;
+                            });
                         }
                     }
                 });
@@ -84,6 +67,11 @@
 
         ready: function (element, options) {
             var markdownBody = element.querySelector(".markdown-body");
+            markdownBody.addEventListener("dblclick", function (event) {
+                event.preventDefault();
+                markdownBody.msContentZoomFactor = 1;
+                return false;
+            });
             this.renderContentAsync.then(function (content) {
                 WinJS.Utilities.setInnerHTMLUnsafe(markdownBody, content.html);
                 if (content.callback) {
@@ -96,7 +84,7 @@
             }).then(function () {
                 Prism.highlightAll(true);
             }).then(null, function (error) {
-                App.notify("error", "Display error.<br>" + error.message);
+                App.notify("error", error.message);
             });
         }
     });
