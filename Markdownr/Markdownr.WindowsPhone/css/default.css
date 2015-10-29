@@ -12,6 +12,10 @@
     width: 100%;
 }
 
+body.phone .fragment {
+    height: calc(100% - 24px);
+}
+
     .fragment header[role=banner] {
         /* Define a grid with columns for the back button and page title. */
         -ms-grid-columns: 37px 83px 1fr;
