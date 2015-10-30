@@ -76,6 +76,7 @@
     <Content Include="images\Square71x71Logo.png" />
     <Content Include="images\storelogo.png" />
     <Content Include="packages.config" />
+    <Content Include="pages\homePage.css" />
     <Content Include="WinJS\css\ui-dark.css" />
     <Content Include="WinJS\css\ui-dark.min.css" />
     <Content Include="WinJS\css\ui-light.css" />
@@ -94,7 +95,6 @@
     <Content Include="WinJS\README.md" />
     <None Include="Package.StoreAssociation.xml" />
     <None Include="Markdownr.Windows_StoreKey.pfx" />
-    <Content Include="pages\home\home.css" />
     <Content Include="default.html" />
     <None Include="Markdownr_TemporaryKey.pfx" />
   </ItemGroup>

@@ -1,0 +1,40 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <script src="findPage.js"></script>
+    <style>
+        .findpage {
+            z-index:10;
+            position:absolute;
+            top: 0;
+            height: 100%;
+            width: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+        .findpage form {
+            background-color: black;
+            position:fixed;
+            bottom: 0;
+            left: 0;
+            padding: 0 0.5em;
+            width: calc(100% - 1em);
+        }
+        .findpage .recent {
+            color: white;
+        }
+        .findpage input[type=search] {
+            background-color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="findpage">
+        <form>
+            <input type="search" name="term" placeholder="Find text" list="recent" autofocus/>
+            <datalist id="recent" data-win-control="WinJS.UI.Repeater" data-win-options="{data:App.model.recentFindTerms}">
+                <option data-win-bind="textContent:this"></option>
+            </datalist>
+        </form>
+    </div>
+</body>
+</html>

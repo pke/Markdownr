@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Package xmlns="http://schemas.microsoft.com/appx/2010/manifest" xmlns:m2="http://schemas.microsoft.com/appx/2013/manifest" xmlns:m3="http://schemas.microsoft.com/appx/2014/manifest" xmlns:mp="http://schemas.microsoft.com/appx/2014/phone/manifest">
-  <Identity Name="32446DudeDevelopment.Markdownr" Version="0.4.2.0" Publisher="CN=81FA8BD8-5F0A-4423-93BB-A0B7F50AED7D" />
+  <Identity Name="32446DudeDevelopment.Markdownr" Version="0.5.0.0" Publisher="CN=81FA8BD8-5F0A-4423-93BB-A0B7F50AED7D" />
   <mp:PhoneIdentity PhoneProductId="fc4eab48-868b-4a23-b319-f5d14f13430b" PhonePublisherId="00000000-0000-0000-0000-000000000000" />
   <Properties>
     <DisplayName>Markdownr</DisplayName>
@@ -16,10 +16,10 @@
   </Resources>
   <Applications>
     <Application Id="App" StartPage="default.html">
-      <m3:VisualElements DisplayName="Markdownr" Square150x150Logo="images\Square150x150Logo.png" Square44x44Logo="images\Square44x44Logo.png" Description="MarkDown file viewer" ForegroundText="light" BackgroundColor="transparent">
-        <m3:DefaultTile Square71x71Logo="images\Square71x71Logo.png">
+      <m3:VisualElements DisplayName="Markdownr" Square150x150Logo="images\Square150x150Logo.png" Square44x44Logo="images\Square44x44Logo.png" Description="MarkDown file viewer" ForegroundText="light" BackgroundColor="#410065">
+        <m3:DefaultTile Square71x71Logo="images\Square71x71Logo.png" Wide310x150Logo="images\Wide310x150Logo.png">
         </m3:DefaultTile>
-        <m3:SplashScreen Image="images\SplashScreen.png" BackgroundColor="transparent" />
+        <m3:SplashScreen Image="images\SplashScreen.png" BackgroundColor="#410065" />
       </m3:VisualElements>
       <Extensions>
         <Extension Category="windows.shareTarget">

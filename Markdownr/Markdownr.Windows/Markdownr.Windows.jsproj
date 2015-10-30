@@ -60,10 +60,10 @@
       <SubType>Designer</SubType>
     </AppxManifest>
     <Content Include="css\default.css" />
-    <Content Include="images\logo.scale-100.png" />
-    <Content Include="images\logo.scale-140.png" />
-    <Content Include="images\logo.scale-180.png" />
-    <Content Include="images\logo.scale-80.png" />
+    <Content Include="images\Square150x150Logo.scale-100.png" />
+    <Content Include="images\Square150x150Logo.scale-140.png" />
+    <Content Include="images\Square150x150Logo.scale-180.png" />
+    <Content Include="images\Square150x150Logo.scale-80.png" />
     <Content Include="images\smalllogo.scale-100.png" />
     <Content Include="images\smalllogo.scale-140.png" />
     <Content Include="images\smalllogo.scale-180.png" />
@@ -71,6 +71,10 @@
     <Content Include="images\splashscreen.scale-100.png" />
     <Content Include="images\splashscreen.scale-140.png" />
     <Content Include="images\splashscreen.scale-180.png" />
+    <Content Include="images\Square310x310Logo.scale-100.png" />
+    <Content Include="images\Square310x310Logo.scale-140.png" />
+    <Content Include="images\Square310x310Logo.scale-180.png" />
+    <Content Include="images\Square310x310Logo.scale-80.png" />
     <Content Include="images\Square70x70Logo.scale-100.png" />
     <Content Include="images\Square70x70Logo.scale-140.png" />
     <Content Include="images\Square70x70Logo.scale-180.png" />
@@ -80,7 +84,11 @@
     <Content Include="images\storelogo.scale-180.png" />
     <None Include="Package.StoreAssociation.xml" />
     <None Include="Markdownr.Windows_StoreKey.pfx" />
-    <Content Include="pages\home\home.css" />
+    <Content Include="images\Wide310x150Logo.scale-100.png" />
+    <Content Include="images\Wide310x150Logo.scale-140.png" />
+    <Content Include="images\Wide310x150Logo.scale-180.png" />
+    <Content Include="images\Wide310x150Logo.scale-80.png" />
+    <Content Include="pages\homePage.css" />
     <Content Include="default.html" />
     <None Include="Markdownr_TemporaryKey.pfx" />
   </ItemGroup>
