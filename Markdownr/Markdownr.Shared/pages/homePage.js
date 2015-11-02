@@ -49,13 +49,45 @@
             }
         },
 
+        onPrint: function (event) {
+            var title;
+            if (this.options.file) {
+                title = this.options.file.name;
+            } else {
+                title = this.titles[0] || "Markdown";
+            }
+            var printTask = event.request.createPrintTask(title, function (args) {
+                args.setSource(MSApp.getHtmlPrintDocumentSource(document));
+            });
+        },
+
+        updateCommands: function () {
+            var commands = ["openFile", "find", "print"];
+            if (Windows.UI.StartScreen.SecondaryTile.exists(this.tileId)) {
+                commands.push("unpin");
+            } else {
+                commands.push("pin");
+            }
+            App.state.commands = commands;
+        },
+
+        unload: function () {
+            // This will reset the printContext only 
+            // when navigating away from homePage.html to another page
+            if (App.state.onPrint == this._onPrint) {
+                App.state.onPrint = null;
+            }
+        },
+
         init: function (element, options) {
+            App.state.onPrint = this._onPrint = this.onPrint.bind(this);
             var self = this;
             if (!options) {
                 options = {};
             }
             this.options = options;
             this.element = element;
+
             var content;
             if (options.text) {
                 content = WinJS.Promise.as({ text: options.text });
@@ -95,15 +127,7 @@
                 });
             }
             this.renderContentAsync = content.then(function (content) {
-                var commands = ["openFile", "find"];
-                if (self.tileId) {
-                    if (Windows.UI.StartScreen.SecondaryTile.exists(self.tileId)) {
-                        commands.push("unpin");
-                    } else {
-                        commands.push("pin");
-                    }
-                }
-                App.model.commands = commands;
+                self.updateCommands();
                 return renderAsync(content.text).then(function (html) {
                     return {
                         html: html,
@@ -117,12 +141,13 @@
             if (!Windows.UI.StartScreen.SecondaryTile.exists(this.tileId)) {
                 // In case the app was running and the tile was deleted we at least now update the commands to reflect that it can no longer be unpinned
                 // FIXME: this should be replaced by an app activation listener, that checks if the current file/uri is still pinned
-                App.model.commands = ["openFile", "find", "pin"];
+                this.updateCommands();
                 return WinJS.Promise.as();
             }
+            var self = this;
             var tile = new Windows.UI.StartScreen.SecondaryTile(this.tileId);
             return tile.requestDeleteAsync().then(function () {
-                App.model.commands = ["openFile", "find", "pin"];
+                self.updateCommands();
                 if (tile.tileId.indexOf("file_") === 0) {
                     Windows.UI.StartScreen.SecondaryTile.findAllAsync().done(function (tiles) {
                         var it = tiles.first();
@@ -139,16 +164,22 @@
             });
         },
 
+        titles: {
+            get: function() {
+                return this._title || (this._title = this.markdownElement.querySelectorAll("h1,h2,h3,h4,h5,h6"));
+            }
+        },
+
         markdownElement: {
             get: function() {
-                return this.markdownBody || (this.markdownBody = this.element.querySelector(".markdown-body"));
+                return this._markdownElement || (this._markdownElement = this.element.querySelector(".markdown-body"));
             }
         },
 
         generateTableOfContentsAsync: function () {
             var level = 0;
             var html = "";
-            Array.prototype.forEach.call(this.markdownElement.querySelectorAll("h1,h2,h3,h4,h5,h6"), function (header, index) {
+            Array.prototype.forEach.call(this.titles, function (header, index) {
                 var anchor = "toc" + index;
                 var anchorElement = header.querySelector("a[name]");
                 if (anchorElement) {
@@ -182,6 +213,7 @@
             if (!this.tileId) {
                 return WinJS.Promise.as();
             }
+            var self = this;
             var tile = new Windows.UI.StartScreen.SecondaryTile(this.tileId);
             var file = this.options.file;
             if (file) {
@@ -203,12 +235,10 @@
             tile.visualElements.showNameOnSquare150x150Logo = true;
             tile.visualElements.showNameOnSquare310x310Logo = true;
             tile.visualElements.showNameOnWide310x150Logo = true;
-            var markdownBody = this.element.querySelector(".markdown-body");
-            var title = markdownBody.querySelectorAll("h1,h2,h3,h4,h5,h6")
             var notification;
-            if (title.length) {
+            if (this.titles.length) {
                 //Windows.UI.Notifications.TileTemplateType.tileSquare150x150Text01
-                notification = TileNotification.createFromTemplate(tile.tileId, "TileWide310x150Text09", title[0].innerText, title[1].innerText);
+                notification = TileNotification.createFromTemplate(tile.tileId, "TileWide310x150Text09", this.titles[0].innerText, this.titles[1].innerText);
             }
             var listener;
             if (notification) {
@@ -223,7 +253,7 @@
                     WinJS.Application.removeEventListener("checkpoint", listener);
                 }
                 if (created) {
-                    App.model.commands = ["openFile", "find", "unpin"];
+                    self.updateCommands();
                     notification && notification.updateSecondaryTile();
                 }
             })
@@ -231,17 +261,16 @@
 
         ready: function (element, options) {
             var self = this;
-            var markdownBody = element.querySelector(".markdown-body");
-            markdownBody.addEventListener("dblclick", function (event) {
+            this.markdownElement.addEventListener("dblclick", function (event) {
                 event.preventDefault();
-                markdownBody.msContentZoomFactor = 1;
+                self.markdownElement.msContentZoomFactor = 1;
                 return false;
             });
             this.renderContentAsync.then(function (content) {
-                WinJS.Utilities.setInnerHTMLUnsafe(markdownBody, content.html);
+                WinJS.Utilities.setInnerHTMLUnsafe(self.markdownElement, content.html);
                 if (content.callback) {
                     try {
-                        content.callback(markdownBody);
+                        content.callback(self.markdownElement);
                     } catch (error) {
                     }
                 }
