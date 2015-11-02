@@ -1,8 +1,41 @@
-﻿.homepage section[role=main] {
-    padding: 20px 20px 0;
-    overflow:auto;
+﻿.homepage .markdown-body {
+    padding: 20px 20px;
     background-color:white;
     -ms-user-select: text;
     -ms-content-zooming:zoom;
     -ms-content-zoom-limit: 20% 1000%;
+}
+
+.homepage header,
+.homepage footer {
+    display:none;
+    position: fixed;
+}
+
+.homepage header {
+    top: 0;
+    text-align:center;
+}
+
+.homepage footer {
+    bottom:0;
+    text-align:right;
+}
+
+
+@media print {
+    .homepage footer {
+        display: table-footer-group;
+    }
+
+    .homepage footer:after {
+        counter-increment: page;
+        content: counter(page) "/" counter(pages);
+    }
+    .homepage .markdown-body {
+        counter-reset: page 1;
+        padding: 0;
+        display: block;
+        background-color:white;
+    }
 }

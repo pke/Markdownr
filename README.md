@@ -11,6 +11,7 @@
 * .md and .markdown (and .txt) [files](#file) from any location
 * [Find](#find) & <mark>Highlight</mark> of text
 * [Pin](#pin) a markdown file or URL to your Start Screen
+* Print
 * And of course images!
   ![alt](/images/kitten.png)
 <span style="display:none">* Automatically generates table of contents (TOC) for easier navigation</span>
@@ -50,6 +51,13 @@ loadFileAsync(file)
 .then null, (error) ->
   console.error(error);
 ```
+
+## Known Issues
+
+### Windows 10
+
+* Pinch zoom does not work
+* Find backbutton broken (closes the app)
 
 <div style="display:none">
 ### Table Of Contents<a name="toc"/>

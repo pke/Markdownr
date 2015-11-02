@@ -1,7 +1,7 @@
 ﻿(function () {
     "use strict";
 
-    var model = WinJS.Binding.as({
+    var state = WinJS.Binding.as({
         notification: WinJS.Binding.as({
             type: null,
             text: "",
@@ -9,8 +9,46 @@
         }),
         pasteAvailable: false,
         recentFindTerms: new WinJS.Binding.List(),
-        commands: []
+        commands: [],
+        onPrint: null
     });
+
+    if (Windows.Graphics.Printing && MSApp.getHtmlPrintDocumentSource) {
+        var printManager = Windows.Graphics.Printing.PrintManager.getForCurrentView();
+        var listener;
+
+        WinJS.Namespace.define("App.commands", {
+            print: {
+                icon: "page",
+                section: "selection",
+                onclick: function () {
+                    // WTF Microsoft. You design an ASYNC API and fail to return a error promise and instead throw?
+                    // Thanks for making our dev lifes harder by forcing us to wrap this call
+                    var printAsync;
+                    try {
+                        printAsync = Windows.Graphics.Printing.PrintManager.showPrintUIAsync();
+                    } catch (ex) {
+                        printAsync = WinJS.Promise.wrapError(ex);
+                    };
+                    printAsync.done(null, function (error) {
+                        console.error(error.message);
+                        return;
+                    });
+                }
+            }
+        });
+
+        state.bind("onPrint", function (value) {
+            if (value && !listener) {
+                printManager.addEventListener("printtaskrequested", listener = function (event) {
+                    state.onPrint(event);
+                });
+            } else if (!value && listener) {
+                printManager.removeEventListener("printtaskrequested", listener);
+                listener = null;
+            }
+        });
+    }
 
     // Clipboard module
     if (Windows.ApplicationModel.DataTransfer.Clipboard) {
@@ -60,7 +98,7 @@
     }
 
     WinJS.Application.addEventListener("clipboardchanged", function (event) {
-        model.pasteAvailable = true;
+        state.pasteAvailable = true;
         probeDataPackageAsync(event.dataPackageView).then(function (probe) {
             if (!probe) {
                 return;
@@ -68,11 +106,11 @@
             App.notify("paste", probe.text, function () {
                 return showAsync(probe.data).then(function () {
                     event.dataPackageView.reportOperationCompleted(event.dataPackageView.requestedOperation);
-                    model.pasteAvailable = false;
+                    state.pasteAvailable = false;
                 });
             });
         }, function (error) {
-            App.notify("error", error.message);
+            console.error(error.message);
         });
     });
 
@@ -166,7 +204,7 @@
 
     var previousFindText;
     WinJS.Namespace.define("App", {
-        model: model,
+        state: state,
         toggleAppBar: function (visible) {
             var appbar = window.appbar.winControl;
             if (visible === undefined) {
@@ -189,6 +227,7 @@
             picker.suggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.documentsLibrary;
             picker.viewMode = Windows.Storage.Pickers.PickerViewMode.list;
             picker.fileTypeFilter.replaceAll([".md", ".markdown"]);
+            //picker.pickSingleFileAsync()
             safeCallAsync(picker, "Windows.Storage.Pickers.FileOpenPicker", "pickSingleFileAsync", "pickSingleFileAndContinue")
             .then(showAsync);
         },
@@ -214,8 +253,8 @@
             if (!text) {
                 return;
             }
-            if (-1 === App.model.recentFindTerms.indexOf(text)) {
-                App.model.recentFindTerms.push(text);
+            if (-1 === App.state.recentFindTerms.indexOf(text)) {
+                App.state.recentFindTerms.push(text);
             }
             while (textRange.findText(text)) {
                 textRange.execCommand("BackColor", false, "yellow");
@@ -226,10 +265,10 @@
             previousFindText = text;
         },
         notify: function (type, text, action) {
-            model.notification.text = text;
-            model.notification.type = type;
+            state.notification.text = text;
+            state.notification.type = type;
             if (action) {
-                model.notification.actionAsync = function () {
+                state.notification.actionAsync = function () {
                     // Clear the notify
                     App.notify();
                     var result;
@@ -241,7 +280,7 @@
                     return result;
                 };
             } else {
-                model.notification.actionAsync = null;
+                state.notification.actionAsync = null;
             }
         }
     });
@@ -253,9 +292,15 @@
         Mousetrap.bind("mod+f", function () {
             App.showFind();
         });
+        Mousetrap.bind("mod+p", function () {
+            var printCommand = appbar.getCommandById("print");
+            if (printCommand && !printCommand.disabled) {
+                printCommand.element.click();
+            }
+        });
     }
 
-    var appBarButtons = {
+    WinJS.Namespace.define("App.commands", {
         openFile: {
             onclick: App.openFile
         },
@@ -274,15 +319,15 @@
                 });
             }
         },
-        showTOC: {
-            onclick: function() {
+        toc: {
+            icon: "bookmarks",
+            onclick: function () {
                 return;
             },
-            section: "global"
+            section: "selection"
         }
-    };
-
-    WinJS.Binding.bind(model, {
+    });
+    WinJS.Binding.bind(state, {
         commands: function (commands, oldValue) {
             if (oldValue === undefined) {
                 return;
@@ -293,9 +338,9 @@
 
     var appbar;
     function createAppBarButtons() {
-        var commands = Object.keys(appBarButtons).map(function (buttonId) {
+        var commands = Object.keys(App.commands).map(function (buttonId) {
             var buttonElement = document.createElement("button");
-            var buttonInfo = appBarButtons[buttonId];
+            var buttonInfo = App.commands[buttonId];
             buttonInfo.id = buttonId;
             var labelText = WinJS.Resources.getString("appButton." + buttonId);
             if (labelText.empty) {
@@ -306,7 +351,7 @@
             if (!buttonInfo.section) {
                 buttonInfo.section = "global";
             }
-            if (!buttonInfo.icon && buttonInfo.section == "global") {
+            if (!buttonInfo.icon) {
                 buttonInfo.icon = buttonId.toLowerCase();
             }
             return new WinJS.UI.AppBarCommand(buttonElement, buttonInfo);
@@ -323,7 +368,7 @@
         banner.id = "banner";
         //i18n
         banner.innerHTML = "<span></span><button class='close'>Close</button>";
-        WinJS.Binding.bind(model, {
+        WinJS.Binding.bind(state, {
             notification: {
                 type: function (value) {
                     banner.setAttribute("type", value);
@@ -335,8 +380,8 @@
         });
         document.body.appendChild(banner);
         banner.addEventListener("click", function () {
-            if (model.notification.actionAsync) {
-                model.notification.actionAsync().done();
+            if (state.notification.actionAsync) {
+                state.notification.actionAsync().done();
             }
         });
         banner.querySelector("button.close").addEventListener("click", function () {
@@ -348,7 +393,9 @@
         if (!home) {
             home = "/pages/homePage.html";
         }
-        new Application.PageControlNavigator(document.body.appendChild(document.createElement("div")), { home: home });
+        var navigatorElement = document.createElement("div");
+        navigatorElement.className = "navigator";
+        new Application.PageControlNavigator(document.body.appendChild(navigatorElement), { home: home });
     }
 
     function createApp(home) {
@@ -368,7 +415,6 @@
         createApp();
 
         var p = WinJS.UI.processAll().then(function () {
-            WinJS.Binding.processAll(document.body, model);
             if (WinJS.Navigation.location) {
                 return WinJS.Navigation.navigate(WinJS.Navigation.location, WinJS.Navigation.state);
             } else {
@@ -387,9 +433,9 @@
                 } else {
                     promise = WinJS.Promise.wrapError(new WinJS.ErrorFromName("Markdownr.FreshStart"));
                 }
-                promise.then(null, function (error) {
+                return promise.then(null, function (error) {
                     if (error.name === "Markdownr.FreshStart") {
-                        WinJS.Navigation.navigate(Application.navigator.home);
+                        return WinJS.Navigation.navigate(Application.navigator.home);
                     } else {
                         // Display Error
                     }

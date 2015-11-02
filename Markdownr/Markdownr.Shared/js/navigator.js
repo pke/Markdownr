@@ -63,7 +63,7 @@
                 _createPageElement: function () {
                     var element = document.createElement("div");
                     element.setAttribute("dir", window.getComputedStyle(this._element, null).direction);
-                    element.style.position = "absolute";
+                    //element.style.position = "absolute";
                     element.style.visibility = "hidden";
                     element.style.width = "100%";
                     element.style.height = "100%";

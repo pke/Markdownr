@@ -4,5 +4,6 @@
 	"appButton.about": "about...",
 	"appButton.pin": "Pin",
 	"appButton.unpin": "Unpin",
-	"appButton.showTOC": "table of contents..."
+	"appButton.print": "Print",
+	"appButton.toc": "table of contents..."
 }

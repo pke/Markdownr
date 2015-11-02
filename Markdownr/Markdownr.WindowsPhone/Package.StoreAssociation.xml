@@ -371,17 +371,17 @@
     <PackageInfo>
       <OsMinVersion>6.3.1.0</OsMinVersion>
       <PackageArchitecture>Neutral</PackageArchitecture>
-      <PackageMaxArchitectureVersion>0.3.0.0</PackageMaxArchitectureVersion>
+      <PackageMaxArchitectureVersion>0.4.2.0</PackageMaxArchitectureVersion>
     </PackageInfo>
     <PackageInfo>
       <OsMinVersion>6.3.1.0</OsMinVersion>
       <PackageArchitecture>Neutral</PackageArchitecture>
-      <PackageMaxArchitectureVersion>0.3.0.0</PackageMaxArchitectureVersion>
+      <PackageMaxArchitectureVersion>0.4.2.0</PackageMaxArchitectureVersion>
     </PackageInfo>
     <PackageInfo>
       <OsMinVersion>6.3.1.0</OsMinVersion>
       <PackageArchitecture>Neutral</PackageArchitecture>
-      <PackageMaxArchitectureVersion>0.3.0.0</PackageMaxArchitectureVersion>
+      <PackageMaxArchitectureVersion>0.4.2.0</PackageMaxArchitectureVersion>
     </PackageInfo>
   </PackageInfoList>
 </StoreAssociation>
