@@ -57,7 +57,20 @@
                 title = this.titles[0] || "Markdown";
             }
             var printTask = event.request.createPrintTask(title, function (args) {
-                args.setSource(MSApp.getHtmlPrintDocumentSource(document));
+                var deferral = args.getDeferral();
+                var getPrintDocumentSourceAsync;
+                if (MSApp.getHtmlPrintDocumentSourceAsync) { // Windows 10
+                    getPrintDocumentSourceAsync = MSApp.getHtmlPrintDocumentSourceAsync(document);
+                } else {
+                    getPrintDocumentSourceAsync = WinJS.Promise.as(MSApp.getHtmlPrintDocumentSource(document));
+                }
+                getPrintDocumentSourceAsync.then(function (source) {
+                    args.setSource(source);
+                    deferral.complete();
+                }, function (error) {
+                    console.error(error);
+                    deferral.complete();
+                });
             });
         },
 

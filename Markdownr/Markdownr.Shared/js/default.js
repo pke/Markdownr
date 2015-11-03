@@ -13,7 +13,7 @@
         onPrint: null
     });
 
-    if (Windows.Graphics.Printing && MSApp.getHtmlPrintDocumentSource) {
+    if (Windows.Graphics.Printing && (MSApp.getHtmlPrintDocumentSource || MSApp.getHtmlPrintDocumentSourceAsync)) {
         var printManager = Windows.Graphics.Printing.PrintManager.getForCurrentView();
         var listener;
 
@@ -227,9 +227,10 @@
             picker.suggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.documentsLibrary;
             picker.viewMode = Windows.Storage.Pickers.PickerViewMode.list;
             picker.fileTypeFilter.replaceAll([".md", ".markdown"]);
-            //picker.pickSingleFileAsync()
             safeCallAsync(picker, "Windows.Storage.Pickers.FileOpenPicker", "pickSingleFileAsync", "pickSingleFileAndContinue")
-            .then(showAsync);
+            .then(showAsync).then(null, function (error) {
+                console.error(error.asyncOpSource ? error.message + error.asyncOpSource.stack : error.message);
+            });
         },
         Binding: {
             disbled: WinJS.Binding.converter(function (value) {
@@ -356,11 +357,35 @@
             }
             return new WinJS.UI.AppBarCommand(buttonElement, buttonInfo);
         });
-        appbar = new WinJS.UI.AppBar(document.body.appendChild(document.createElement("div")), {
+        var appBarElement = document.createElement("div");
+        appBarElement.style.backgroundColor = "rgba(255,255,255,255)";
+        appBarElement.style.color = "black";
+        appBarElement.id = "appbar";
+        var applicationView = Windows.UI.ViewManagement.ApplicationView.getForCurrentView();
+        if (applicationView) {
+            //applicationView.setDesiredBoundsMode && applicationView.setDesiredBoundsMode(Windows.UI.ViewManagement.ApplicationViewBoundsMode.useCoreWindow);
+        }
+        appbar = new WinJS.UI.AppBar(document.body.appendChild(appBarElement), {
             closedDisplayMode: 'minimal',
-            commands: commands
+            commands: commands, // WinJS < 4.0
+            data: new WinJS.Binding.List(commands) // WinJS 4.x
         });
-        appbar.element.id = "appbar";
+        var nativeAppBar;
+        if (Windows.UI.WebUI.Core) {
+            nativeAppBar = Windows.UI.WebUI.Core.WebUICommandBar.getForCurrentView();
+        } else {
+            appBarElement.style.backgroundColor = "rgb(255,255,255)";
+        }
+
+        var setOpacity = function (opacity) {
+            if (nativeAppBar) {
+                nativeAppBar.opacity = opacity;
+            } else {
+                appBarElement.style.opacity = opacity;
+            }
+        }
+        appbar.addEventListener("beforeshow", setOpacity.bind(null, 1));
+        appbar.addEventListener("afterhide", setOpacity.bind(null, 0));
     }
 
     function createBanner() {
