@@ -1,4 +1,4 @@
-
+﻿
 WinJS.UI.Pages.define("/pages/filePickerPage.html", {
     init: function(element, options) {
         this.files = []
