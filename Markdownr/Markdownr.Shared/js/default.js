@@ -13,41 +13,43 @@
         onPrint: null
     });
 
-    if (Windows.Graphics.Printing && (MSApp.getHtmlPrintDocumentSource || MSApp.getHtmlPrintDocumentSourceAsync)) {
-        var printManager = Windows.Graphics.Printing.PrintManager.getForCurrentView();
-        var listener;
+    function initPrinting() {
+        if (Windows.Graphics.Printing && (MSApp.getHtmlPrintDocumentSource || MSApp.getHtmlPrintDocumentSourceAsync)) {
+            var printManager = Windows.Graphics.Printing.PrintManager.getForCurrentView();
+            var listener;
 
-        WinJS.Namespace.define("App.commands", {
-            print: {
-                icon: "page",
-                section: "selection",
-                onclick: function () {
-                    // WTF Microsoft. You design an ASYNC API and fail to return a error promise and instead throw?
-                    // Thanks for making our dev lifes harder by forcing us to wrap this call
-                    var printAsync;
-                    try {
-                        printAsync = Windows.Graphics.Printing.PrintManager.showPrintUIAsync();
-                    } catch (ex) {
-                        printAsync = WinJS.Promise.wrapError(ex);
-                    };
-                    printAsync.done(null, function (error) {
-                        console.error(error.message);
-                        return;
-                    });
+            WinJS.Namespace.define("App.commands", {
+                print: {
+                    icon: "page",
+                    section: "selection",
+                    onclick: function () {
+                        // WTF Microsoft. You design an ASYNC API and fail to return a error promise and instead throw?
+                        // Thanks for making our dev lifes harder by forcing us to wrap this call
+                        var printAsync;
+                        try {
+                            printAsync = Windows.Graphics.Printing.PrintManager.showPrintUIAsync();
+                        } catch (ex) {
+                            printAsync = WinJS.Promise.wrapError(ex);
+                        };
+                        printAsync.done(null, function (error) {
+                            console.error(error.message);
+                            return;
+                        });
+                    }
                 }
-            }
-        });
+            });
 
-        state.bind("onPrint", function (value) {
-            if (value && !listener) {
-                printManager.addEventListener("printtaskrequested", listener = function (event) {
-                    state.onPrint(event);
-                });
-            } else if (!value && listener) {
-                printManager.removeEventListener("printtaskrequested", listener);
-                listener = null;
-            }
-        });
+            state.bind("onPrint", function (value) {
+                if (value && !listener) {
+                    printManager.addEventListener("printtaskrequested", listener = function (event) {
+                        state.onPrint(event);
+                    });
+                } else if (!value && listener) {
+                    printManager.removeEventListener("printtaskrequested", listener);
+                    listener = null;
+                }
+            });
+        }
     }
 
     // Clipboard module
@@ -86,7 +88,7 @@
                 }
             });
             if (hasClipboardAccess) {
-                clipboardChanged();
+                //clipboardChanged();
             }
         }
 
@@ -235,6 +237,15 @@
         Binding: {
             disbled: WinJS.Binding.converter(function (value) {
                 return !value;
+            }),
+
+            date: WinJS.Binding.converter(function (value) {
+                App.Binding.date.formatter = App.Binding.date.formatter || new Windows.Globalization.DateTimeFormatting.DateTimeFormatter("shortdate shorttime")
+                return App.Binding.date.formatter.format(new Date(value))
+            }),
+
+            size: WinJS.Binding.converter(function (value) {
+                return value + " bytes";//i18n
             })
         },
         showFind: function (text) {
@@ -436,10 +447,20 @@
         WinJS.UI.disableAnimations();
         WinJS.Navigation.history = WinJS.Application.sessionState.history || {};
         WinJS.Navigation.history.current.initialPlaceholder = true;
+        var kind = args.detail.kind
+        //kind = Windows.ApplicationModel.Activation.ActivationKind.fileOpenPicker
 
-        createApp();
+        if (kind === Windows.ApplicationModel.Activation.ActivationKind.fileOpenPicker) {
+            createNavigator();
+        } else {
+            initPrinting();
+            createApp();
+        }
 
         var p = WinJS.UI.processAll().then(function () {
+            if (kind === Windows.ApplicationModel.Activation.ActivationKind.fileOpenPicker) {
+                return WinJS.Navigation.navigate("/pages/filePickerPage.html", { filePickerUI: args.detail.fileOpenPickerUI })
+            }
             if (WinJS.Navigation.location) {
                 return WinJS.Navigation.navigate(WinJS.Navigation.location, WinJS.Navigation.state);
             } else {

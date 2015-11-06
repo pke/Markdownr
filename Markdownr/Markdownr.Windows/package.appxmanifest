@@ -45,6 +45,15 @@
             </SupportedFileTypes>
           </FileTypeAssociation>
         </Extension>
+        <Extension Category="windows.fileOpenPicker">
+          <FileOpenPicker>
+            <SupportedFileTypes>
+              <FileType>.md</FileType>
+              <FileType>.markdown</FileType>
+              <FileType>.txt</FileType>
+            </SupportedFileTypes>
+          </FileOpenPicker>
+        </Extension>
       </Extensions>
     </Application>
   </Applications>

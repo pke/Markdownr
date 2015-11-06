@@ -85,7 +85,7 @@
         },
 
         unload: function () {
-            // This will reset the printContext only 
+            // This will reset the printContext only
             // when navigating away from homePage.html to another page
             if (App.state.onPrint == this._onPrint) {
                 App.state.onPrint = null;
@@ -119,12 +119,17 @@
             } else if (options.file) {
                 content = WinJS.Promise.as(options.file).then(Windows.Storage.FileIO.readTextAsync)
                 .then(function (text) {
-                    return { text: text };
+                    var meta = {
+                        size: text.length,
+                        openedAt: Date.now()
+                    }
+                    Windows.Storage.AccessCache.StorageApplicationPermissions.mostRecentlyUsedList.add(options.file, JSON.stringify(meta))
+                    return { text: text }
                 });
             } else {
                 content = Windows.Storage.StorageFile.getFileFromApplicationUriAsync(new Windows.Foundation.Uri("ms-appx:///README.md"))
                 .then(function (file) {
-                    options.file = file;
+                    //options.file = file;
                     return Windows.Storage.FileIO.readTextAsync(file);
                 }).then(function (text) {
                     return {
