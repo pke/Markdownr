@@ -1,0 +1,29 @@
+.filePickerPage {
+  background-color: #7500b6;
+  color: white;
+  display: -ms-grid;
+  -ms-grid-rows: auto 1fr;
+  -ms-grid-columns: 1fr;
+  height: 100%;
+}
+
+.filePickerPage .main {
+  margin: 20px;
+}
+
+.filePickerPage .file-list {
+  color: black;
+  -ms-grid-row: 2;
+}
+
+.filePickerPage .file-list .win-container .win-itembox .file-item {
+  width: 200px;
+  height: 100px;
+  padding: 0.5em;
+  color: white;
+  background-color: rgba(0,0,0,0.7);
+}
+
+.filePickerPage .file-item .name {
+  font-weight: bold;
+}

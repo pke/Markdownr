@@ -1,0 +1,29 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <link href="/css/default.css" rel="stylesheet" />
+    <link href="filePickerPage.css" rel="stylesheet" />
+    <script src="filePickerPage.js"></script>
+</head>
+<body>
+    <div class="filePickerPage">
+        <div class="main">
+            <div class="file-item-template" data-win-control="WinJS.Binding.Template">
+                <div class="file-item" data-win-bind="title:path">
+                    <div class="name" data-win-bind="textContent:name"></div>
+                    <div class="size" data-win-bind="textContent:size App.Binding.size"></div>
+                    <div class="date" data-win-bind="textContent:date App.Binding.date"></div>
+                </div>
+            </div>
+            <h1>Most recently opened files</h1>
+            <div class="file-list" data-win-control="WinJS.UI.ListView"
+                data-win-options="{
+                    tapBehavior: 'toggleSelect',
+                    itemTemplate: select('.file-item-template')
+                }"
+            ></div>
+        </div>
+    </div>
+</body>
+</html>
