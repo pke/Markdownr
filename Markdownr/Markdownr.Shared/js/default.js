@@ -10,7 +10,8 @@
         pasteAvailable: false,
         recentFindTerms: new WinJS.Binding.List(),
         commands: [],
-        onPrint: null
+        onPrint: null,
+        onShare: null
     });
 
     function initPrinting() {
@@ -23,7 +24,7 @@
                     icon: "page",
                     section: "selection",
                     onclick: function () {
-                        // WTF Microsoft. You design an ASYNC API and fail to return a error promise and instead throw?
+                        // WTF Microsoft. You design an ASYNC API and fail to return a error promise and instead throws?
                         // Thanks for making our dev lifes harder by forcing us to wrap this call
                         var printAsync;
                         try {
@@ -207,6 +208,38 @@
     var previousFindText;
     WinJS.Namespace.define("App", {
         state: state,
+        getShareTempFolderAsync: function() {
+            return Windows.Storage.ApplicationData.current.temporaryFolder.createFolderAsync("share", Windows.Storage.CreationCollisionOption.openIfExists);
+        },
+        createShareTempFileAsync: function (fileName, getContent) {
+            return App.getShareTempFolderAsync()
+            .then(function (folder) {
+                return WinJS.Promise.as(getContent())
+                .then(function (content) {
+                    return folder.createFileAsync(fileName, Windows.Storage.CreationCollisionOption.replaceExisting)
+                    .then(function (file) {
+                        // Fucking WinRT does not return the file here
+                        return Windows.Storage.FileIO.writeTextAsync(file, content, Windows.Storage.Streams.UnicodeEncoding.utf8)
+                        .then(function () {
+                            return file;
+                        })
+                    });
+                });
+            });
+        },
+
+        cleanShareTempFolderAsync: function () {
+            return App.getShareTempFolderAsync()
+            .then(function (folder) {
+                return folder.getFilesAsync()
+            }).then(function (files) {
+                return files.reduce(function (promise, file) {
+                    return promise.then(function () {
+                        return file.deleteAsync();
+                    });
+                }, WinJS.Promise.as());
+            });
+        },
         toggleAppBar: function (visible) {
             var appbar = window.appbar.winControl;
             if (visible === undefined) {
@@ -341,12 +374,41 @@
     });
     WinJS.Binding.bind(state, {
         commands: function (commands, oldValue) {
-            if (oldValue === undefined) {
+            if (oldValue === undefined || !appbar) {
                 return;
             }
             appbar.showOnlyCommands(commands);
         }
     });
+
+    function initSharing() {
+        var dataTransferManager = Windows.ApplicationModel.DataTransfer.DataTransferManager.getForCurrentView();
+        var listener;
+
+        if (WinJS.Utilities.isPhone) {
+            App.cleanShareTempFolderAsync();
+            WinJS.Namespace.define("App.commands", {
+                share: {
+                    icon: "share",
+                    section: "selection",
+                    onclick: function () {
+                        Windows.ApplicationModel.DataTransfer.DataTransferManager.showShareUI();
+                    }
+                }
+            });
+        }
+
+        state.bind("onShare", function (value) {
+            if (value && !listener) {
+                dataTransferManager.addEventListener("datarequested", listener = function (event) {
+                    state.onShare(event);
+                })
+            } else if (!value && listener) {
+                dataTransferManager.removeEventListener("datarequested", listener);
+                listener = null;
+            }
+        });
+    }
 
     var appbar;
     function createAppBarButtons() {
@@ -395,8 +457,8 @@
                 appBarElement.style.opacity = opacity;
             }
         }
-        appbar.addEventListener("beforeshow", setOpacity.bind(null, 1));
-        appbar.addEventListener("afterhide", setOpacity.bind(null, 0));
+        //appbar.addEventListener("beforeshow", setOpacity.bind(null, 1));
+        //appbar.addEventListener("afterhide", setOpacity.bind(null, 0));
     }
 
     function createBanner() {
@@ -434,27 +496,32 @@
         new Application.PageControlNavigator(document.body.appendChild(navigatorElement), { home: home });
     }
 
-    function createApp(home) {
+    function createApp(activationKind) {
         if (window.appbar) {
             return;
         }
         createNavigator();
-        createAppBarButtons();
-        createBanner();
+        if (activationKind != Windows.ApplicationModel.Activation.ActivationKind.shareTarget) {
+            createAppBarButtons();
+            createBanner();
+        }
     }
 
     WinJS.Application.addEventListener("activated", function (args) {
         WinJS.UI.disableAnimations();
         WinJS.Navigation.history = WinJS.Application.sessionState.history || {};
         WinJS.Navigation.history.current.initialPlaceholder = true;
-        var kind = args.detail.kind
+        var kind = args.detail.kind;
         //kind = Windows.ApplicationModel.Activation.ActivationKind.fileOpenPicker
 
         if (kind === Windows.ApplicationModel.Activation.ActivationKind.fileOpenPicker) {
             createNavigator();
         } else {
-            initPrinting();
-            createApp();
+            if (kind !== Windows.ApplicationModel.Activation.ActivationKind.shareTarget) {
+                initPrinting();
+                initSharing();
+            }
+            createApp(kind);
         }
 
         var p = WinJS.UI.processAll().then(function () {

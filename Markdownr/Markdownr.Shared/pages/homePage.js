@@ -5,10 +5,14 @@
     var BinaryStringEncoding = Windows.Security.Cryptography.BinaryStringEncoding;
     var HashAlgorithmProvider = Windows.Security.Cryptography.Core.HashAlgorithmProvider;
 
+    function stringToBuffer(string) {
+        return CryptographicBuffer.convertStringToBinary(string, BinaryStringEncoding.utf8);
+    }
+
     function hashString(string, method) {
         var hashData, provider;
         provider = HashAlgorithmProvider.openAlgorithm(method.toUpperCase());
-        hashData = provider.hashData(CryptographicBuffer.convertStringToBinary(string, BinaryStringEncoding.utf8));
+        hashData = provider.hashData(stringToBuffer(string));
         if (hashData.length !== provider.hashLength) {
             throw new WinJS.ErrorFromName('InvalidArgumentException', "Generated hash length is different that algorithm hash length");
         }
@@ -17,6 +21,22 @@
 
     function shortSha1(string) {
         return hashString(string, "SHA1").substring(0, 6);
+    }
+
+    function createStorageFileForSharingAsync(fileName, getContent, icon) {
+        if (WinJS.Utilities.isPhone) {
+            return App.createShareTempFileAsync(fileName, getContent);
+        }
+        return Windows.Storage.StorageFile.createStreamedFileAsync(fileName, function onDataRequested(stream) {
+            WinJS.Promise.as(getContent())
+            .then(function (content) {
+                return stream.writeAsync(stringToBuffer(content));
+            }).then(function() {
+                return stream.flushAsync();
+            }).done(null, function(error) {
+                stream.failAndClose( Windows.Storage.StreamedFileFailureMode.incomplete);
+            });
+        }, icon || null);
     }
 
     var renderAsync = function (content) {
@@ -74,8 +94,66 @@
             });
         },
 
+        getFileName: function(extension) {
+            if (!extension) {
+                extension = ".md";
+            }
+            return this.options.file ? this.options.file.name : (this.title.replace("[:\\\\/*?|<>]", "") + extension);
+        },
+
+        onShare: function(event) {
+            var self = this;
+            var request = event.request;
+            //var deferral = request.getDeferral();
+            var properties = request.data.properties;
+            properties.applicationName = "Markdownr"; // todo: Pull from appxmanifest
+            properties.title = this.title;
+
+            // We support sharing of
+            // * HTML fragment
+            // * URI (if content was downloaded)
+            // * HTML File
+            // * Image resources
+            // todo: Text could be shared if we would have a summary or something
+            if (this.options.uri) {
+                request.data.setUri(this.options.uri);
+            }
+            var html = self.markdownElement.innerHTML;
+            var htmlFragment = Windows.ApplicationModel.DataTransfer.HtmlFormatHelper.createHtmlFormat(html);
+            request.data.setHtmlFormat(htmlFragment);
+            self.withImageElements(function (img) {
+                var src = img.getAttribute("src"); // Can't use img.src as its modified to include the apps ID scheme for local images
+                request.data.resourceMap[src] = Windows.Storage.Streams.RandomAccessStreamReference.createFromUri(new Windows.Foundation.Uri(img.src));
+            });
+            request.data.properties.fileTypes.replaceAll([".md", ".markdown", ".txt", ".html"]);
+            request.data.setDataProvider(Windows.ApplicationModel.DataTransfer.StandardDataFormats.storageItems, function (pullRequest) {
+                var deferral = pullRequest.getDeferral();
+                var filePromises = [];
+                if (self.options.file) {
+                    filePromises.push(WinJS.Promise.as(self.options.file));
+                } else {
+                    try {
+                        filePromises.push(createStorageFileForSharingAsync(self.getFileName(), function () { return self.content; }));
+                    } catch (e) {
+                        console.error(e.message);
+                    }
+                }
+                // Add the rendered HTML file
+                try {
+                    filePromises.push(createStorageFileForSharingAsync(self.getFileName(".html"), function () { return html; }));
+                } catch (e) {
+                    console.error(e.message);
+                }
+                WinJS.Promise.join(filePromises)
+                .then(function (files) {
+                    pullRequest.setData(files);
+                    deferral.complete();
+                });
+            });
+        },
+
         updateCommands: function () {
-            var commands = ["openFile", "find", "print"];
+            var commands = ["openFile", "find", "print", "share"];
             if (Windows.UI.StartScreen.SecondaryTile.exists(this.tileId)) {
                 commands.push("unpin");
             } else {
@@ -84,19 +162,34 @@
             App.state.commands = commands;
         },
 
+        withImageElements: function (callback) {
+            return Array.prototype.map.call(this.markdownElement.querySelectorAll("img[src]"), function (img) {
+                try {
+                    return callback(img);
+                } catch (error) {
+                    console.error("Could not do something with image: " + error.message);
+                    return null;
+                }
+            });
+        },
+
         unload: function () {
             // This will reset the printContext only
             // when navigating away from homePage.html to another page
             if (App.state.onPrint == this._onPrint) {
                 App.state.onPrint = null;
             }
+            if (App.state.onShare == this._onShare) {
+                App.state.onShare = null;
+            }
         },
 
         init: function (element, options) {
             App.state.onPrint = this._onPrint = this.onPrint.bind(this);
-            var self = this;
+            App.state.onShare = this._onShare = this.onShare.bind(this);
+            var self = this
             if (!options) {
-                options = {};
+                options = {}
             }
             this.options = options;
             this.element = element;
@@ -146,6 +239,7 @@
             }
             this.renderContentAsync = content.then(function (content) {
                 self.updateCommands();
+                self.content = content;
                 return renderAsync(content.text).then(function (html) {
                     return {
                         html: html,
@@ -182,9 +276,32 @@
             });
         },
 
+        titleElements: {
+            get: function() {
+                return this._titleElements || (this._titleElements = this.markdownElement.querySelectorAll("h1,h2,h3,h4,h5,h6"));
+            }
+        },
+
         titles: {
             get: function() {
-                return this._title || (this._title = this.markdownElement.querySelectorAll("h1,h2,h3,h4,h5,h6"));
+                return this._titles || (this._titles = Array.prototype.map.call(this.titleElements, function(header) {
+                    // Cut away the potential newlines
+                    return header.innerText.replace(/\r?\n|\r/g, "");
+                }));
+            }
+        },
+
+        title: {
+            get: function() {
+                var title = this.titles[0];
+                if (!title && this.options.file) {
+                    title = this.options.file.name;
+                } else if (!title && this.options.uri) {
+                    title = this.options.uri.absoluteUri;
+                } else if (!title) {
+                    title = "unnamed";//i18n
+                }
+                return title;
             }
         },
 
@@ -197,7 +314,7 @@
         generateTableOfContentsAsync: function () {
             var level = 0;
             var html = "";
-            Array.prototype.forEach.call(this.titles, function (header, index) {
+            Array.prototype.forEach.call(this.titleElements, function (header, index) {
                 var anchor = "toc" + index;
                 var anchorElement = header.querySelector("a[name]");
                 if (anchorElement) {
@@ -256,7 +373,7 @@
             var notification;
             if (this.titles.length) {
                 //Windows.UI.Notifications.TileTemplateType.tileSquare150x150Text01
-                notification = TileNotification.createFromTemplate(tile.tileId, "TileWide310x150Text09", this.titles[0].innerText, this.titles[1].innerText);
+                notification = TileNotification.createFromTemplate(tile.tileId, "TileWide310x150Text09", this.titles[0], this.titles[1]);
             }
             var listener;
             if (notification) {
@@ -294,7 +411,7 @@
                 }
                 return WinJS.Promise.timeout();
             }).then(function () {
-                Prism.highlightAll(true);
+                window.Prism && Prism.highlightAll(true);
             }).then(null, function (error) {
                 App.notify("error", error.message);
             });
