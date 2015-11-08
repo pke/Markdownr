@@ -214,6 +214,13 @@
                 content = WinJS.xhr({ url: options.uri.absoluteUri }).then(function (request) {
                     var contentType = request.getResponseHeader("Content-Type");
                     contentType = (contentType.split(";")[0]).toLowerCase().trim();
+                    if (contentType === "text/plain") {
+                        // Most webservers don's set a proper content type for markdown/textile files
+                        // And after all, they are just plain text files
+                        // So get the real content type from the extension, if any, in the URL path
+                        var fileType = options.uri.path.substr(options.uri.path.lastIndexOf("."));
+                        contentType = fileTypeToContentType[fileType];
+                    }
                     if (Object.keys(contentTypeToFileType).indexOf(contentType) != -1) {
                         return { text: request.responseText, contentType: contentType };
                     } else {
