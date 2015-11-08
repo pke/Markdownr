@@ -5,6 +5,19 @@
     var BinaryStringEncoding = Windows.Security.Cryptography.BinaryStringEncoding;
     var HashAlgorithmProvider = Windows.Security.Cryptography.Core.HashAlgorithmProvider;
 
+    var contentTypeToFileType = {
+        "text/markdown": ".md",
+        "text/plain": ".txt",
+        "text/textile": ".textile",
+    };
+
+    var fileTypeToContentType = {
+        ".markdown": "text/markdown",
+        ".md": "text/markdown",
+        ".textile": "text/textile",
+        ".txt": "text/plain"
+    };
+
     function stringToBuffer(string) {
         return CryptographicBuffer.convertStringToBinary(string, BinaryStringEncoding.utf8);
     }
@@ -39,7 +52,7 @@
         }, icon || null);
     }
 
-    var renderAsync = function (content) {
+    var renderAsync = function (content, contentType) {
         return new WinJS.Promise(function (c, e, p) {
             var worker = new Worker("/js/worker.js");
             worker.onerror = function (err) {
@@ -48,7 +61,7 @@
             worker.onmessage = function (message) {
                 c(message.data.html);
             }
-            worker.postMessage({ content: content });
+            worker.postMessage({ content: content, contentType: contentType });
         });
     }
 
@@ -94,11 +107,11 @@
             });
         },
 
-        getFileName: function(extension) {
+        generateFileName: function(extension) {
             if (!extension) {
-                extension = ".md";
+                extension = contentTypeToFileType[this.content.contentType];
             }
-            return this.options.file ? this.options.file.name : (this.title.replace("[:\\\\/*?|<>]", "") + extension);
+            return this.title.replace("[:\\\\/*?|<>]", "") + extension;
         },
 
         onShare: function(event) {
@@ -125,7 +138,7 @@
                 var src = img.getAttribute("src"); // Can't use img.src as its modified to include the apps ID scheme for local images
                 request.data.resourceMap[src] = Windows.Storage.Streams.RandomAccessStreamReference.createFromUri(new Windows.Foundation.Uri(img.src));
             });
-            request.data.properties.fileTypes.replaceAll([".md", ".markdown", ".txt", ".html"]);
+            request.data.properties.fileTypes.replaceAll([".md", ".markdown", ".txt", ".html", ".textile"]);
             request.data.setDataProvider(Windows.ApplicationModel.DataTransfer.StandardDataFormats.storageItems, function (pullRequest) {
                 var deferral = pullRequest.getDeferral();
                 var filePromises = [];
@@ -133,14 +146,14 @@
                     filePromises.push(WinJS.Promise.as(self.options.file));
                 } else {
                     try {
-                        filePromises.push(createStorageFileForSharingAsync(self.getFileName(), function () { return self.content; }));
+                        filePromises.push(createStorageFileForSharingAsync(self.generateFileName(), function () { return self.content; }));
                     } catch (e) {
                         console.error(e.message);
                     }
                 }
                 // Add the rendered HTML file
                 try {
-                    filePromises.push(createStorageFileForSharingAsync(self.getFileName(".html"), function () { return html; }));
+                    filePromises.push(createStorageFileForSharingAsync(self.generateFileName(".html"), function () { return html; }));
                 } catch (e) {
                     console.error(e.message);
                 }
@@ -201,10 +214,8 @@
                 content = WinJS.xhr({ url: options.uri.absoluteUri }).then(function (request) {
                     var contentType = request.getResponseHeader("Content-Type");
                     contentType = (contentType.split(";")[0]).toLowerCase().trim();
-                    // todo: Read from manifest!
-                    var supportedContentTypes = ["text/plain", "text/markdown"];
-                    if (supportedContentTypes.indexOf(contentType) != -1) {
-                        return { text: request.responseText };
+                    if (Object.keys(contentTypeToFileType).indexOf(contentType) != -1) {
+                        return { text: request.responseText, contentType: contentType };
                     } else {
                         return WinJS.Promise.wrapError(new WinJS.ErrorFromName("Markdownr", "Display of " + contentType + " not supported.")); //i18n
                     }
@@ -217,7 +228,7 @@
                         openedAt: Date.now()
                     }
                     Windows.Storage.AccessCache.StorageApplicationPermissions.mostRecentlyUsedList.add(options.file, JSON.stringify(meta))
-                    return { text: text }
+                    return { text: text, contentType: options.file.contentType || fileTypeToContentType[options.file.fileType] }
                 });
             } else {
                 content = Windows.Storage.StorageFile.getFileFromApplicationUriAsync(new Windows.Foundation.Uri("ms-appx:///README.md"))
@@ -238,9 +249,10 @@
                 });
             }
             this.renderContentAsync = content.then(function (content) {
-                self.updateCommands();
+                content.contentType = content.contentType || "text/markdown";
                 self.content = content;
-                return renderAsync(content.text).then(function (html) {
+                self.updateCommands();
+                return renderAsync(content.text, content.contentType).then(function (html) {
                     return {
                         html: html,
                         callback: content.callback

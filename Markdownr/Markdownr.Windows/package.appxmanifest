@@ -27,11 +27,10 @@
               <FileType>.md</FileType>
               <FileType>.markdown</FileType>
               <FileType>.txt</FileType>
+              <FileType>.textile</FileType>
             </SupportedFileTypes>
             <DataFormat>Text</DataFormat>
             <DataFormat>URI</DataFormat>
-            <DataFormat>text/markdown</DataFormat>
-            <DataFormat>text/plain</DataFormat>
             <DataFormat>StorageItems</DataFormat>
           </ShareTarget>
         </Extension>
@@ -51,8 +50,18 @@
               <FileType>.md</FileType>
               <FileType>.markdown</FileType>
               <FileType>.txt</FileType>
+              <FileType>.textile</FileType>
             </SupportedFileTypes>
           </FileOpenPicker>
+        </Extension>
+        <Extension Category="windows.fileTypeAssociation">
+          <FileTypeAssociation Name="textile">
+            <DisplayName>Textile File</DisplayName>
+            <EditFlags OpenIsSafe="true" />
+            <SupportedFileTypes>
+              <FileType ContentType="text/textile">.textile</FileType>
+            </SupportedFileTypes>
+          </FileTypeAssociation>
         </Extension>
       </Extensions>
     </Application>

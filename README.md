@@ -8,7 +8,7 @@
 
 * [GitHub Flavoured Markdown](https://help.github.com/articles/github-flavored-markdown/) including tables
 * Extensive & fast [syntax highlighting](#syntax)
-* .md and .markdown (and .txt) [files](#file) from any location
+* Opens .md and .markdown, [.textile](http://txstyle.org/) [files](#file) from any location
 * [Find](#find) & <mark>Highlight</mark> of text
 * [Pin](#pin) a markdown file or URL to your Start Screen
 * Print
