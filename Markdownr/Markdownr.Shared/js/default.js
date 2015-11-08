@@ -14,10 +14,10 @@
         onShare: null
     });
 
+    var printListener;
     function initPrinting() {
-        if (Windows.Graphics.Printing && (MSApp.getHtmlPrintDocumentSource || MSApp.getHtmlPrintDocumentSourceAsync)) {
+        if (!printListener && Windows.Graphics.Printing && (MSApp.getHtmlPrintDocumentSource || MSApp.getHtmlPrintDocumentSourceAsync)) {
             var printManager = Windows.Graphics.Printing.PrintManager.getForCurrentView();
-            var listener;
 
             WinJS.Namespace.define("App.commands", {
                 print: {
@@ -41,13 +41,13 @@
             });
 
             state.bind("onPrint", function (value) {
-                if (value && !listener) {
-                    printManager.addEventListener("printtaskrequested", listener = function (event) {
+                if (value && !printListener) {
+                    printManager.addEventListener("printtaskrequested", printListener = function (event) {
                         state.onPrint(event);
                     });
-                } else if (!value && listener) {
-                    printManager.removeEventListener("printtaskrequested", listener);
-                    listener = null;
+                } else if (!value && printListener) {
+                    printManager.removeEventListener("printtaskrequested", printListener);
+                    printListener = null;
                 }
             });
         }
@@ -261,7 +261,7 @@
             var picker = new Windows.Storage.Pickers.FileOpenPicker();
             picker.suggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.documentsLibrary;
             picker.viewMode = Windows.Storage.Pickers.PickerViewMode.list;
-            picker.fileTypeFilter.replaceAll([".md", ".markdown"]);
+            picker.fileTypeFilter.replaceAll([".md", ".markdown", ".textile"]);
             safeCallAsync(picker, "Windows.Storage.Pickers.FileOpenPicker", "pickSingleFileAsync", "pickSingleFileAndContinue")
             .then(showAsync).then(null, function (error) {
                 console.error(error.asyncOpSource ? error.message + error.asyncOpSource.stack : error.message);
@@ -381,9 +381,12 @@
         }
     });
 
+    var shareListener;
     function initSharing() {
+        if (shareListener) {
+            return;
+        }
         var dataTransferManager = Windows.ApplicationModel.DataTransfer.DataTransferManager.getForCurrentView();
-        var listener;
 
         if (WinJS.Utilities.isPhone) {
             App.cleanShareTempFolderAsync();
@@ -399,13 +402,13 @@
         }
 
         state.bind("onShare", function (value) {
-            if (value && !listener) {
-                dataTransferManager.addEventListener("datarequested", listener = function (event) {
+            if (value && !shareListener) {
+                dataTransferManager.addEventListener("datarequested", shareListener = function (event) {
                     state.onShare(event);
                 })
-            } else if (!value && listener) {
-                dataTransferManager.removeEventListener("datarequested", listener);
-                listener = null;
+            } else if (!value && shareListener) {
+                dataTransferManager.removeEventListener("datarequested", shareListener);
+                shareListener = null;
             }
         });
     }
