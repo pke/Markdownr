@@ -28,6 +28,7 @@
               <FileType>.md</FileType>
               <FileType>.markdown</FileType>
               <FileType>.txt</FileType>
+              <FileType>.textile</FileType>
             </SupportedFileTypes>
             <DataFormat>Text</DataFormat>
             <DataFormat>URI</DataFormat>
@@ -37,10 +38,9 @@
         <Extension Category="windows.fileTypeAssociation">
           <FileTypeAssociation Name="markdown">
             <DisplayName>Markdown File</DisplayName>
-            <Logo>square71x71logo.png</Logo>
             <SupportedFileTypes>
-              <FileType>.md</FileType>
-              <FileType>.markdown</FileType>
+              <FileType ContentType="text/markdown">.md</FileType>
+              <FileType ContentType="text/markdown">.markdown</FileType>
             </SupportedFileTypes>
           </FileTypeAssociation>
         </Extension>
@@ -50,8 +50,17 @@
               <FileType>.md</FileType>
               <FileType>.markdown</FileType>
               <FileType>.txt</FileType>
+              <FileType>.textile</FileType>
             </SupportedFileTypes>
           </FileOpenPicker>
+        </Extension>
+        <Extension Category="windows.fileTypeAssociation">
+          <FileTypeAssociation Name="textile">
+            <DisplayName>Textile File</DisplayName>
+            <SupportedFileTypes>
+              <FileType ContentType="text/textile">.textile</FileType>
+            </SupportedFileTypes>
+          </FileTypeAssociation>
         </Extension>
       </Extensions>
     </Application>
