@@ -434,8 +434,8 @@
             return new WinJS.UI.AppBarCommand(buttonElement, buttonInfo);
         });
         var appBarElement = document.createElement("div");
-        appBarElement.style.backgroundColor = "rgba(255,255,255,255)";
-        appBarElement.style.color = "black";
+        //appBarElement.style.backgroundColor = "rgba(255,255,255,255)";
+        //appBarElement.style.color = "black";
         appBarElement.id = "appbar";
         var applicationView = Windows.UI.ViewManagement.ApplicationView.getForCurrentView();
         if (applicationView) {

@@ -1,1 +1,20 @@
 ﻿@import url(//Microsoft.Phone.WinJS.2.1/css/ui-dark.css);
+
+body.phone .markdown-body .highlight pre,
+body.phone .markdown-body pre {
+    background-color: rgba(200,200,200,0.2);
+}
+
+body.phone code[class*="language-"],
+body.phone pre[class*="language-"] {
+    color: white;
+    text-shadow:none;
+}
+
+body.phone .token.operator,
+body.phone .token.entity,
+body.phone .token.url,
+body.phone .language-css .token.string,
+body.phone .style .token.string {
+    background-color: transparent;
+}

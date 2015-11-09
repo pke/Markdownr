@@ -6,7 +6,7 @@
 .markdown-body {
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
-  color: #333;
+  /*color: #333;*/
   overflow: hidden;
   font-family: "Helvetica Neue", Helvetica, "Segoe UI", Arial, freesans, sans-serif;
   font-size: 16px;
@@ -91,7 +91,7 @@
 }
 
 .markdown-body a {
-  color: #4078c0;
+  /*color: #4078c0;*/
   text-decoration: none;
 }
 
@@ -427,12 +427,12 @@
 }
 
 .markdown-body table tr {
-  background-color: #fff;
+  /*background-color: #fff;*/
   border-top: 1px solid #ccc;
 }
 
 .markdown-body table tr:nth-child(2n) {
-  background-color: #f8f8f8;
+  /*background-color: #f8f8f8;*/
 }
 
 .markdown-body img {
