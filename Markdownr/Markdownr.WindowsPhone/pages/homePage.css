@@ -1,7 +1,6 @@
 ﻿.homepage section[role=main] {
     padding: 24px 10px 0;
     overflow:auto;
-    background-color:white;
     -ms-user-select: text;
     -ms-content-zooming:zoom;
     -ms-content-zoom-limit: 20% 1000%;
