@@ -281,6 +281,11 @@
                 return value + " bytes";//i18n
             })
         },
+        selectAll: function () {
+            var range = document.body.createTextRange();
+            range.moveToElementText(document.querySelector(".markdown-body"));
+            range.select();
+        },
         showFind: function (text) {
             WinJS.UI.Pages.render("/pages/findPage.html", document.body, { text: text });
         },
@@ -331,6 +336,7 @@
     });
 
     if (window.Mousetrap) {
+        Mousetrap.bind("mod+a", App.selectAll);
         Mousetrap.bind("esc", function () {
             App.notify();
         });
@@ -348,6 +354,9 @@
     WinJS.Namespace.define("App.commands", {
         openFile: {
             onclick: App.openFile
+        },
+        selectAll: {
+            onclick: App.selectAll
         },
         find: {
             onclick: App.showFind
