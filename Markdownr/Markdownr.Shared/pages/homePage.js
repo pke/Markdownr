@@ -166,7 +166,7 @@
         },
 
         updateCommands: function () {
-            var commands = ["openFile", "find", "print", "share"];
+            var commands = ["openFile", "find", "print", "share", "selectAll"];
             if (Windows.UI.StartScreen.SecondaryTile.exists(this.tileId)) {
                 commands.push("unpin");
             } else {
