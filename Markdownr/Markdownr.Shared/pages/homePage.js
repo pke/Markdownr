@@ -47,7 +47,7 @@
             }).then(function() {
                 return stream.flushAsync();
             }).done(null, function(error) {
-                stream.failAndClose( Windows.Storage.StreamedFileFailureMode.incomplete);
+                stream.failAndClose(Windows.Storage.StreamedFileFailureMode.incomplete);
             });
         }, icon || null);
     }
@@ -114,6 +114,13 @@
             return this.title.replace("[:\\\\/*?|<>]", "") + extension;
         },
 
+        onSave: function () {
+            return {
+                html: this.markdownElement.innerHTML,
+                fileName: this.generateFileName(".html")
+            }
+        },
+
         onShare: function(event) {
             var self = this;
             var request = event.request;
@@ -166,7 +173,7 @@
         },
 
         updateCommands: function () {
-            var commands = ["openFile", "find", "print", "share", "selectAll"];
+            var commands = ["openFile", "find", "print", "share", "selectAll", "saveHTML"];
             if (Windows.UI.StartScreen.SecondaryTile.exists(this.tileId)) {
                 commands.push("unpin");
             } else {
