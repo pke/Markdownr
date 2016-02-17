@@ -6,5 +6,7 @@
 	"appButton.unpin": "Unpin",
 	"appButton.print": "Print",
 	"appButton.share": "share...",
-	"appButton.toc": "table of contents..."
+	"appButton.toc": "table of contents...",
+	"appButton.selectAll": "select all",
+	"appButton.saveHTML": "save as HTML"
 }

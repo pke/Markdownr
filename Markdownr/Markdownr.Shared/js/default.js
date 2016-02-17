@@ -11,7 +11,8 @@
         recentFindTerms: new WinJS.Binding.List(),
         commands: [],
         onPrint: null,
-        onShare: null
+        onShare: null,
+        saving: null
     });
 
     var printListener;
@@ -116,6 +117,21 @@
             console.error(error.message);
         });
     });
+
+    function saveAsync(file) {
+        if (!file) {
+            return WinJS.Promise.wrapError(new WinJS.ErrorFromName("Markdownr", "No file given"));
+        }
+        var fullHtml = "<!DOCTYPE HTML><html><head>";
+        return WinJS.Promise.join([
+            Windows.Storage.PathIO.readTextAsync("ms-appx:///css/github-markdown.css"),
+            Windows.Storage.PathIO.readTextAsync("ms-appx:///css/prism.css")
+            ])
+        .then(function (css) {
+            fullHtml += "<style>" + css[0] + css[1] + "</style></head><body><div class='markdown-body'>" + App.state.saving.html + "</div></body></html>";
+            return Windows.Storage.FileIO.writeTextAsync(file, fullHtml);
+        })
+    }
 
     function showAsync(what) {
         if (!what) {
@@ -267,6 +283,17 @@
                 console.error(error.asyncOpSource ? error.message + error.asyncOpSource.stack : error.message);
             });
         },
+        saveHTML: function (event) {
+            var picker = new Windows.Storage.Pickers.FileSavePicker();
+            App.state.saving = Application.navigator.pageControl.onSave();
+            picker.defaultFileExtension = ".html";
+            picker.fileTypeChoices.insert("HTML", [".html"]);
+            picker.suggestedFileName = App.state.saving.fileName;
+            safeCallAsync(picker, "Windows.Storage.Pickers.FileSavePicker", "pickSaveFileAsync", "pickSaveFileAndContinue")
+            .then(saveAsync).then(null, function (error) {
+                console.error(error.asyncOpSource ? error.message + error.asyncOpSource.stack : error.message);
+            });
+        },
         Binding: {
             disbled: WinJS.Binding.converter(function (value) {
                 return !value;
@@ -280,6 +307,11 @@
             size: WinJS.Binding.converter(function (value) {
                 return value + " bytes";//i18n
             })
+        },
+        selectAll: function () {
+            var range = document.body.createTextRange();
+            range.moveToElementText(document.querySelector(".markdown-body"));
+            range.select();
         },
         showFind: function (text) {
             WinJS.UI.Pages.render("/pages/findPage.html", document.body, { text: text });
@@ -331,6 +363,8 @@
     });
 
     if (window.Mousetrap) {
+        Mousetrap.bind("mod+a", App.selectAll);
+        Mousetrap.bind("mod+s", App.saveHTML);
         Mousetrap.bind("esc", function () {
             App.notify();
         });
@@ -348,6 +382,15 @@
     WinJS.Namespace.define("App.commands", {
         openFile: {
             onclick: App.openFile
+        },
+        saveHTML: {
+            icon: "save",
+            onclick: App.saveHTML,
+            section: "selection"
+        },
+        selectAll: {
+            onclick: App.selectAll,
+            section: "selection"
         },
         find: {
             onclick: App.showFind
@@ -530,6 +573,8 @@
         var p = WinJS.UI.processAll().then(function () {
             if (kind === Windows.ApplicationModel.Activation.ActivationKind.fileOpenPicker) {
                 return WinJS.Navigation.navigate("/pages/filePickerPage.html", { filePickerUI: args.detail.fileOpenPickerUI })
+            } else if (kind === Windows.ApplicationModel.Activation.ActivationKind.pickSaveFileContinuation) {
+                return saveAsync(args.detail.file);
             }
             if (WinJS.Navigation.location) {
                 return WinJS.Navigation.navigate(WinJS.Navigation.location, WinJS.Navigation.state);
