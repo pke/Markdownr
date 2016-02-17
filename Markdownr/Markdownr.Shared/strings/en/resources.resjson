@@ -7,5 +7,6 @@
 	"appButton.print": "Print",
 	"appButton.share": "share...",
 	"appButton.toc": "table of contents...",
-	"appButton.selectAll": "select all"
+	"appButton.selectAll": "select all",
+	"appButton.saveHTML": "save as HTML"
 }

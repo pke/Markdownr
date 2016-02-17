@@ -47,7 +47,7 @@
             }).then(function() {
                 return stream.flushAsync();
             }).done(null, function(error) {
-                stream.failAndClose( Windows.Storage.StreamedFileFailureMode.incomplete);
+                stream.failAndClose(Windows.Storage.StreamedFileFailureMode.incomplete);
             });
         }, icon || null);
     }
@@ -114,6 +114,13 @@
             return this.title.replace("[:\\\\/*?|<>]", "") + extension;
         },
 
+        onSave: function () {
+            return {
+                html: this.markdownElement.innerHTML,
+                fileName: this.generateFileName(".html")
+            }
+        },
+
         onShare: function(event) {
             var self = this;
             var request = event.request;
@@ -166,7 +173,7 @@
         },
 
         updateCommands: function () {
-            var commands = ["openFile", "find", "print", "share", "selectAll"];
+            var commands = ["openFile", "find", "print", "share", "selectAll", "saveHTML"];
             if (Windows.UI.StartScreen.SecondaryTile.exists(this.tileId)) {
                 commands.push("unpin");
             } else {
@@ -212,7 +219,7 @@
                 content = WinJS.Promise.as({ text: options.text });
             } else if (options.uri) {
                 content = WinJS.xhr({ url: options.uri.absoluteUri }).then(function (request) {
-                    var contentType = request.getResponseHeader("Content-Type");
+                    var contentType = request.getResponseHeader("Content-Type") || "text/markdown";
                     contentType = (contentType.split(";")[0]).toLowerCase().trim();
                     if (contentType === "text/plain") {
                         // Most webservers don's set a proper content type for markdown/textile files
@@ -238,7 +245,8 @@
                     return { text: text, contentType: options.file.contentType || fileTypeToContentType[options.file.fileType] }
                 });
             } else {
-                content = Windows.Storage.StorageFile.getFileFromApplicationUriAsync(new Windows.Foundation.Uri("ms-appx:///README.md"))
+                self.options.uri = new Windows.Foundation.Uri("ms-appx:///README.md");
+                content = Windows.Storage.StorageFile.getFileFromApplicationUriAsync(self.options.uri)
                 .then(function (file) {
                     //options.file = file;
                     return Windows.Storage.FileIO.readTextAsync(file);
@@ -372,13 +380,13 @@
             var file = this.options.file;
             if (file) {
                 var futureAccessList = Windows.Storage.AccessCache.StorageApplicationPermissions.futureAccessList;
-                tile.displayName = file.name;
+                tile.displayName = this.title || file.name;
                 tile.arguments = futureAccessList.add(file);
                 tile.roamingEnabled = false;
             } else {
                 var uri = this.options.uri;
                 tile.arguments = uri.absoluteUri;
-                tile.displayName = uri.absoluteUri;
+                tile.displayName = this.title;
             }
             tile.visualElements.square150x150Logo = new Windows.Foundation.Uri("ms-appx:///images/square150x150Logo.png");
             tile.visualElements.square310x310Logo = new Windows.Foundation.Uri("ms-appx:///images/Square310x310Logo.png");
