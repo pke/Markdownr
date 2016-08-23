@@ -8,20 +8,20 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Markdownr", "Markdownr", "{
 		todo.md = todo.md
 	EndProjectSection
 EndProject
-Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Markdownr.Shared", "Markdownr\Markdownr.Shared\Markdownr.Shared.shproj", "{03ACA292-0714-472B-8FBB-40BA080BDF28}"
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Markdownr.Shared", "Markdownr.Shared\Markdownr.Shared.shproj", "{03ACA292-0714-472B-8FBB-40BA080BDF28}"
 EndProject
-Project("{262852C6-CD72-467D-83FE-5EEB1973A190}") = "Markdownr.Windows", "Markdownr\Markdownr.Windows\Markdownr.Windows.jsproj", "{EB5B926A-E3F2-41EC-8E65-12B76EAE22F2}"
+Project("{262852C6-CD72-467D-83FE-5EEB1973A190}") = "Markdownr.Windows", "Markdownr.Windows\Markdownr.Windows.jsproj", "{EB5B926A-E3F2-41EC-8E65-12B76EAE22F2}"
 EndProject
-Project("{262852C6-CD72-467D-83FE-5EEB1973A190}") = "Markdownr.WindowsPhone", "Markdownr\Markdownr.WindowsPhone\Markdownr.WindowsPhone.jsproj", "{895258CC-D77F-4D98-AA88-B2E0D8AC9FE9}"
+Project("{262852C6-CD72-467D-83FE-5EEB1973A190}") = "Markdownr.WindowsPhone", "Markdownr.WindowsPhone\Markdownr.WindowsPhone.jsproj", "{895258CC-D77F-4D98-AA88-B2E0D8AC9FE9}"
 EndProject
 Project("{262852C6-CD72-467D-83FE-5EEB1973A190}") = "Markdownr.WindowsUniversal", "Markdownr\Markdownr.WindowsUniversal\Markdownr.WindowsUniversal.jsproj", "{3F83ADAF-781A-48F3-9A5D-5D01C058282A}"
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
-		Markdownr\Markdownr.Shared\Markdownr.Shared.projitems*{895258cc-d77f-4d98-aa88-b2e0d8ac9fe9}*SharedItemsImports = 5
-		Markdownr\Markdownr.Shared\Markdownr.Shared.projitems*{3f83adaf-781a-48f3-9a5d-5d01c058282a}*SharedItemsImports = 5
-		Markdownr\Markdownr.Shared\Markdownr.Shared.projitems*{eb5b926a-e3f2-41ec-8e65-12b76eae22f2}*SharedItemsImports = 5
-		Markdownr\Markdownr.Shared\Markdownr.Shared.projitems*{03aca292-0714-472b-8fbb-40ba080bdf28}*SharedItemsImports = 13
+		Markdownr.Shared\Markdownr.Shared.projitems*{895258cc-d77f-4d98-aa88-b2e0d8ac9fe9}*SharedItemsImports = 5
+		Markdownr.Shared\Markdownr.Shared.projitems*{3f83adaf-781a-48f3-9a5d-5d01c058282a}*SharedItemsImports = 5
+		Markdownr.Shared\Markdownr.Shared.projitems*{eb5b926a-e3f2-41ec-8e65-12b76eae22f2}*SharedItemsImports = 5
+		Markdownr.Shared\Markdownr.Shared.projitems*{03aca292-0714-472b-8fbb-40ba080bdf28}*SharedItemsImports = 13
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
