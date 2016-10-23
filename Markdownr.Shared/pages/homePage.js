@@ -264,7 +264,12 @@
                 });
             }
             this.renderContentAsync = content.then(function (content) {
-                content.contentType = content.contentType || "text/markdown";
+                // Treat text files as markdown
+                if (content.contentType === "text/plain") {
+                  content.contentType = "text/markdown";
+                } else {
+                  content.contentType = content.contentType || "text/markdown";
+                }
                 if (content.contentType === "text/plain") {
                   content.text = "<pre>" + content.text + "</pre>"
                 }
