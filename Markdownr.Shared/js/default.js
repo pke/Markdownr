@@ -212,7 +212,7 @@
             var picker = new Windows.Storage.Pickers.FileOpenPicker();
             picker.suggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.documentsLibrary;
             picker.viewMode = Windows.Storage.Pickers.PickerViewMode.list;
-            picker.fileTypeFilter.replaceAll([".md", ".markdown", ".textile"]);
+            picker.fileTypeFilter.replaceAll([".md", ".markdown", ".txt", ".textile"]);
             safeCallAsync(picker, "Windows.Storage.Pickers.FileOpenPicker", "pickSingleFileAsync", "pickSingleFileAndContinue")
             .then(showAsync).then(null, function (error) {
                 console.error(error.asyncOpSource ? error.message + error.asyncOpSource.stack : error.message);
