@@ -1,5 +1,5 @@
 ﻿/// <reference group="Dedicated Worker" />
-importScripts("/lib/marked.min.js", "/lib/textile.js");
+importScripts("/lib/marked.min.js", "/lib/textile.min.js");
 
 onmessage = function (event) {
     if (event.data.content) {
