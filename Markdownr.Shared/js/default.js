@@ -7,7 +7,6 @@
             text: "",
             actionAsync: null
         }),
-        pasteAvailable: false,
         recentFindTerms: new WinJS.Binding.List(),
         commands: [],
         onPrint: null,
@@ -53,70 +52,6 @@
             });
         }
     }
-
-    // Clipboard module
-    if (Windows.ApplicationModel.DataTransfer.Clipboard) {
-        var pendingClipboardChange = false;
-        var hasClipboardAccess = false;
-
-        window.addEventListener("focus", function (event) {
-            hasClipboardAccess = true;
-            if (pendingClipboardChange) {
-                clipboardChanged();
-            }
-        });
-
-        window.addEventListener("blur", function (event) {
-            hasClipboardAccess = false;
-        });
-
-        function clipboardChanged() {
-            try {
-                var dataPackageView = Windows.ApplicationModel.DataTransfer.Clipboard.getContent();
-                if (dataPackageView && dataPackageView.availableFormats.size) {
-                    WinJS.Application.queueEvent({ type: "clipboardchanged", dataPackageView: dataPackageView });
-                    pendingClipboardChange = false;
-                }
-            } catch (e) {
-                console.error("Could not access clipboard");
-            }
-        }
-
-        function watchClipboard() {
-            Windows.ApplicationModel.DataTransfer.Clipboard.addEventListener("contentchanged", function () {
-                pendingClipboardChange = true;
-                if (hasClipboardAccess) {
-                    clipboardChanged();
-                }
-            });
-            if (hasClipboardAccess) {
-                //clipboardChanged();
-            }
-        }
-
-        WinJS.Application.addEventListener("activated", function (args) {
-            args.detail.splashScreen.addEventListener("dismissed", function () {
-                watchClipboard();
-            });
-        });
-    }
-
-    WinJS.Application.addEventListener("clipboardchanged", function (event) {
-        state.pasteAvailable = true;
-        probeDataPackageAsync(event.dataPackageView).then(function (probe) {
-            if (!probe) {
-                return;
-            }
-            App.notify("paste", probe.text, function () {
-                return showAsync(probe.data).then(function () {
-                    event.dataPackageView.reportOperationCompleted(event.dataPackageView.requestedOperation);
-                    state.pasteAvailable = false;
-                });
-            });
-        }, function (error) {
-            console.error(error.message);
-        });
-    });
 
     function saveAsync(file) {
         if (!file) {
